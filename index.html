@@ -3,245 +3,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Morena Raiz | Moda Feminina </title>
+    <title>Morena Raiz | Moda Feminina</title>
+    <meta name="description" content="Moda feminina com elegância e personalidade. Vestidos, blusas, calças e muito mais.">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Header Elegante -->
-    <header class="header-elegant">
-        <div class="header-top">
-            <div class="container">
-                <div class="header-content">
-                    <div class="logo">
-    <img src="logo.png" alt="Morena Raiz" class="logo-img">
-</div>
-                    <nav class="nav-elegant">
-                        <ul>
-                            <li><a href="#" class="nav-link" data-categoria="">Lançamentos</a></li>
-                            <li><a href="#" class="nav-link" data-categoria="vestido">Roupas</a></li>
-                            <li><a href="#" class="nav-link" data-categoria="blusa">Acessórios</a></li>
-                            <li><a href="#" class="nav-link" data-categoria="calca">Sale</a></li>
-                            
-                        </ul>
-                    </nav>
 
-                    <div class="header-actions">
-                        <button id="btn-admin" class="btn-admin" title="Painel Administrativo">
-                            <i class="fas fa-cog"></i>
-                        </button>
-                        <button id="btn-whatsapp" class="btn-whatsapp">
-                            <i class="fab fa-whatsapp"></i>
-                            
-                        </button>
-                    </div>
-                </div>
+    <!-- ANUNCIO TOPO -->
+    <div class="announcement" id="announcement">
+        <p>Frete grátis acima de R$&nbsp;299 &nbsp;·&nbsp; Parcele em até 3x sem juros</p>
+        <button class="ann-close" onclick="this.parentElement.style.display='none'"><i class="fas fa-times"></i></button>
+    </div>
+
+    <!-- HEADER -->
+    <header class="header" id="header">
+        <div class="header-inner">
+            <div class="header-left">
+                <button class="icon-btn" id="btn-search-open" aria-label="Buscar">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+
+            <a href="index.html" class="logo">
+                <img src="logo.png" alt="Morena Raiz"
+                    onerror="this.style.display='none';document.querySelector('.logo-fallback').style.display='block'">
+                <span class="logo-fallback">Morena Raiz</span>
+            </a>
+
+            <div class="header-right">
+                <button class="icon-btn cart-icon-btn" id="btn-cart" aria-label="Carrinho">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="cart-dot" id="cart-dot" style="display:none"></span>
+                </button>
             </div>
         </div>
 
-        <div class="header-bottom">
-            <div class="container">
-                <div class="hero-banner">
-                    <div class="hero-text">
-                        <h2>Elegância em Cada Detalhe</h2>
-                        <p>Descubra peças exclusivas que realçam sua beleza única</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- NAV -->
+        <nav class="nav">
+            <a class="nav-link active" data-cat="">Tudo</a>
+            <a class="nav-link" data-cat="lancamento">Novidades</a>
+            <a class="nav-link" data-cat="vestido">Vestidos</a>
+            <a class="nav-link" data-cat="blusa">Blusas</a>
+            <a class="nav-link" data-cat="calca">Calças</a>
+            <a class="nav-link" data-cat="saias">Saias</a>
+            <a class="nav-link" data-cat="shorts">Shorts</a>
+            <a class="nav-link" data-cat="fitness">Fitness</a>
+            <a class="nav-link" data-cat="acessorio">Acessórios</a>
+            <a class="nav-link nav-sale" data-cat="sale">Sale</a>
+        </nav>
     </header>
 
-    <main class="main-content">
-        <div class="container">
-            <!-- Filtros Modernos -->
-            <section class="filtros-modernos">
-                <div class="filtros-header">
-                    <h3>Descubra Sua Peça Ideal</h3>
-                    <p>Filtre por categoria, tamanho ou busque por nome</p>
-                </div>
-                <div class="filtros-grid">
-                    <div class="search-box">
-                        <i class="fas fa-search"></i>
-                        <input type="text" id="busca" placeholder="Buscar produtos...">
-                    </div>
-                    <select id="categoria" class="select-elegant">
-                        <option value="">Todas as Categorias</option>
-                        <option value="vestido">Vestidos</option>
-                        <option value="blusa">Blusas</option>
-                        <option value="calca">Calças</option>
-                        <option value="saias">Saias</option>
-                        <option value="shorts">Shorts</option>
-                        <option value="fitness">Fitness</option>
-                        <option value="acessorio">Acessórios</option>
-                    </select>
-                    <select id="tamanho" class="select-elegant">
-                        <option value="">Todos os Tamanhos</option>
-                        <option value="P">P</option>
-                        <option value="M">M</option>
-                        <option value="G">G</option>
-                        <option value="GG">GG</option>
-                        <option value="PLUS">PLUS</option>
-                    </select>
-                </div>
-            </section>
-
-            <!-- Catálogo -->
-            <section class="catalogo-moderno" id="catalogo">
-                <!-- Produtos serão carregados aqui -->
-            </section>
-        </div>
-    </main>
-
-    <!-- Carrinho Flutuante Elegante -->
-    <div id="carrinho-flutuante" class="carrinho-flutuante">
-        <div class="carrinho-header">
-            <h3><i class="fas fa-shopping-bag"></i> Seu Pedido</h3>
-            <button id="fechar-carrinho" class="btn-close">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div id="itens-carrinho" class="itens-carrinho">
-            <div class="carrinho-vazio">
-                <i class="fas fa-shopping-bag"></i>
-                <p>Seu pedido está vazio</p>
-                <small>Adicione produtos para enviar pelo WhatsApp</small>
+    <!-- BUSCA OVERLAY -->
+    <div class="search-overlay" id="search-overlay">
+        <div class="search-overlay-inner">
+            <button class="search-close" id="btn-search-close"><i class="fas fa-times"></i></button>
+            <div class="search-wrap">
+                <i class="fas fa-search search-icon-input"></i>
+                <input type="text" id="search-input" placeholder="Buscar peças..." autocomplete="off">
             </div>
-        </div>
-        <div class="carrinho-footer">
-            <div class="carrinho-total">
-                <span>Total:</span>
-                <strong>R$ <span id="total-carrinho">0,00</span></strong>
-            </div>
-            <button id="enviar-whatsapp" class="btn-whatsapp-full">
-                <i class="fab fa-whatsapp"></i>
-                Enviar Pedido pelo WhatsApp
-            </button>
+            <div id="search-results" class="search-results-list"></div>
         </div>
     </div>
 
-    <!-- Painel Admin Moderno -->
-    <section id="admin-panel" class="admin-panel-moderno">
-        <div class="admin-overlay"></div>
-        <div class="admin-content">
-            <div class="admin-header">
-                <h2><i class="fas fa-crown"></i> Painel Élanie</h2>
-                <button id="fechar-admin" class="btn-close-admin">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <div class="admin-tabs">
-                <button class="tab-btn active" data-tab="cadastro">
-                    <i class="fas fa-plus-circle"></i>
-                    Novo Produto
-                </button>
-                <button class="tab-btn" data-tab="produtos">
-                    <i class="fas fa-boxes"></i>
-                    Produtos
-                </button>
-            </div>
-
-            <div class="tab-content active" id="tab-cadastro">
-                <form id="form-produto" class="form-produto-elegant">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="nome">Nome do Produto</label>
-                            <input type="text" id="nome" name="nome" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="preco">Preço (R$)</label>
-                            <input type="number" id="preco" name="preco" step="0.01" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="categoria-form">Categoria</label>
-                            <select id="categoria-form" name="categoria" required>
-                                <option value="vestido">Vestido</option>
-                                <option value="blusa">Blusa</option>
-                                <option value="calca">Calça</option>
-                                <option value="saias">Saias</option>
-                                <option value="shorts">Shorts</option>
-                                <option value="fitness">Fitness</option>
-                                <option value="acessorio">Acessório</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="tamanhos">Tamanhos</label>
-                            <input type="text" id="tamanhos" name="tamanhos" placeholder="P, M, G, GG, PLUS" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="cores">Cores Disponíveis</label>
-                            <input type="text" id="cores" name="cores" placeholder="Preto, Branco, Azul, Rosa, Amarelo, Verde, Estampado" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="material">Material</label>
-                            <input type="text" id="material" name="material" required>
-                        </div>
-                        
-                        <div class="form-group full-width">
-                            <label for="descricao">Descrição do Produto</label>
-                            <textarea id="descricao" name="descricao" rows="3" required></textarea>
-                        </div>
-                        
-                        <div class="form-group full-width">
-                            <label for="imagem">URL da Imagem</label>
-                            <input type="url" id="imagem" name="imagem" placeholder="https://exemplo.com/imagem.jpg" required>
-                            <small class="form-help">
-                                <i class="fas fa-info-circle"></i>
-                                Use serviços como ImgBB para hospedar suas imagens
-                            </small>
-                        </div>
-                    </div>
-                    
-                    <button type="submit" class="btn-elegant">
-                        <i class="fas fa-plus"></i>
-                        Cadastrar Produto
-                    </button>
-                </form>
-            </div>
-
-            <div class="tab-content" id="tab-produtos">
-                <div class="produtos-admin">
-                    <h3>Produtos Cadastrados</h3>
-                    <div id="lista-produtos-admin" class="lista-produtos-admin">
-                        <!-- Lista de produtos admin -->
-                    </div>
-                </div>
+    <!-- FILTROS -->
+    <div class="filters-bar" id="filters-bar">
+        <div class="filters-inner">
+            <span class="count-label" id="count-label">— peças</span>
+            <div class="filters-right">
+                <select id="filter-size" class="filter-sel">
+                    <option value="">Tamanho</option>
+                    <option>P</option><option>M</option><option>G</option>
+                    <option>GG</option><option>PLUS</option>
+                </select>
+                <select id="filter-sort" class="filter-sel">
+                    <option value="">Ordenar</option>
+                    <option value="asc">Menor preço</option>
+                    <option value="desc">Maior preço</option>
+                    <option value="new">Novidades</option>
+                </select>
             </div>
         </div>
-    </section>
+    </div>
 
-    <!-- Botão Flutuante do Carrinho -->
-    <button id="btn-carrinho" class="btn-carrinho-flutuante">
-        <i class="fas fa-shopping-bag"></i>
-        <span id="contador-carrinho" class="contador-carrinho">0</span>
-    </button>
+    <!-- GRID -->
+    <main class="catalog" id="catalog"></main>
 
-    <!-- Footer Elegante -->
-    <footer class="footer-elegant">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-brand">
-                    
-                        <div class="logo">
-    <img src="logo.png" alt="Morena Raiz" class="logo-img">
-</div>
-                    </div>
-                    <p>Elegância que transforma</p>
-                </div>
-                <div class="footer-info">
-                    <p><i class="fab fa-whatsapp"></i> Faça seu pedido pelo WhatsApp</p>
-                    <p><i class="fas fa-shipping-fast"></i> Entregamos em toda região</p>
-                </div>
+    <!-- CARRINHO DRAWER -->
+    <div class="overlay" id="overlay-cart"></div>
+    <aside class="cart-drawer" id="cart-drawer">
+        <div class="drawer-head">
+            <span class="drawer-title">Meu Pedido</span>
+            <button class="icon-btn" id="btn-cart-close"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="cart-body" id="cart-body"></div>
+        <div class="cart-foot" id="cart-foot" style="display:none">
+            <div class="cart-total-row">
+                <span>Total</span>
+                <strong>R$ <span id="cart-total">0,00</span></strong>
             </div>
+            <button class="btn-whatsapp" id="btn-whatsapp">
+                <i class="fab fa-whatsapp"></i> Enviar Pedido pelo WhatsApp
+            </button>
+            <button class="btn-clear" id="btn-clear">Limpar pedido</button>
+        </div>
+    </aside>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <img src="logo.png" alt="Morena Raiz" class="footer-logo"
+                    onerror="this.style.display='none'">
+                <p>Moda feminina com elegância e personalidade.</p>
+                <p style="margin-top:.5rem"><i class="fab fa-whatsapp" style="color:#25D366"></i> Pedidos via WhatsApp</p>
+            </div>
+            <div class="footer-links">
+                <strong>Categorias</strong>
+                <a data-cat="lancamento">Novidades</a>
+                <a data-cat="vestido">Vestidos</a>
+                <a data-cat="blusa">Blusas</a>
+                <a data-cat="calca">Calças</a>
+                <a data-cat="sale">Sale</a>
+            </div>
+            <div class="footer-links">
+                <strong>Informações</strong>
+                <a href="#">Trocas e Devoluções</a>
+                <a href="#">Formas de Pagamento</a>
+                <a href="#">Entrega</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 Morena Raiz · Todos os direitos reservados</p>
         </div>
     </footer>
 
+    <div class="toast" id="toast"></div>
+
     <script src="script.js"></script>
+    <script>
+        // INDEX specific
+        const app = new MorenaRaiz();
+
+        // NAV
+        document.querySelectorAll('.nav-link').forEach(el => {
+            el.addEventListener('click', e => {
+                e.preventDefault();
+                document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+                el.classList.add('active');
+                app.setFilter('cat', el.dataset.cat);
+            });
+        });
+
+        // FOOTER CATS
+        document.querySelectorAll('.footer-links a[data-cat]').forEach(el => {
+            el.addEventListener('click', e => {
+                e.preventDefault();
+                app.setFilter('cat', el.dataset.cat);
+                document.querySelectorAll('.nav-link').forEach(n => n.classList.toggle('active', n.dataset.cat === el.dataset.cat));
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+
+        // FILTERS
+        document.getElementById('filter-size').addEventListener('change', e => app.setFilter('size', e.target.value));
+        document.getElementById('filter-sort').addEventListener('change', e => app.setFilter('sort', e.target.value));
+
+        // SEARCH
+        document.getElementById('btn-search-open').addEventListener('click', () => {
+            document.getElementById('search-overlay').classList.add('open');
+            setTimeout(() => document.getElementById('search-input').focus(), 100);
+        });
+        document.getElementById('btn-search-close').addEventListener('click', () => {
+            document.getElementById('search-overlay').classList.remove('open');
+        });
+        document.getElementById('search-input').addEventListener('input', e => {
+            const q = e.target.value.trim().toLowerCase();
+            const res = document.getElementById('search-results');
+            if (!q) { res.innerHTML = ''; return; }
+            const found = app.produtos.filter(p => p.nome.toLowerCase().includes(q)).slice(0, 6);
+            if (!found.length) { res.innerHTML = '<p class="search-empty">Nenhuma peça encontrada</p>'; return; }
+            res.innerHTML = found.map(p => `
+                <a class="search-result-item" href="produto.html?id=${p.id}">
+                    <img src="${p.img||''}" onerror="this.style.background='#f5f2ed'">
+                    <div>
+                        <p class="sr-nome">${p.nome}</p>
+                        <p class="sr-preco">R$ ${p.preco.toFixed(2).replace('.',',')}</p>
+                    </div>
+                </a>`).join('');
+        });
+
+        // RENDER
+        app.renderCatalog();
+    </script>
 </body>
 </html>

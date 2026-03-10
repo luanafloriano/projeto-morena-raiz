@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produto · Morena Raiz</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="header" id="header">
+        <div class="header-inner">
+            <div class="header-left">
+                <a href="index.html" class="icon-btn back-btn" aria-label="Voltar">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+            </div>
+            <a href="index.html" class="logo">
+                <img src="logo.png" alt="Morena Raiz"
+                    onerror="this.style.display='none';document.querySelector('.logo-fallback').style.display='block'">
+                <span class="logo-fallback">Morena Raiz</span>
+            </a>
+            <div class="header-right">
+                <button class="icon-btn cart-icon-btn" id="btn-cart" aria-label="Carrinho">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="cart-dot" id="cart-dot" style="display:none"></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- PRODUTO -->
+    <main class="produto-page" id="produto-page">
+        <div class="produto-loading" id="produto-loading">
+            <div class="loading-spin"></div>
+        </div>
+    </main>
+
+    <!-- MAIS PEÇAS -->
+    <section class="mais-pecas" id="mais-pecas" style="display:none">
+        <div class="mais-inner">
+            <h2 class="mais-title">Você também pode gostar</h2>
+            <div class="mais-grid" id="mais-grid"></div>
+        </div>
+    </section>
+
+    <!-- CARRINHO DRAWER -->
+    <div class="overlay" id="overlay-cart"></div>
+    <aside class="cart-drawer" id="cart-drawer">
+        <div class="drawer-head">
+            <span class="drawer-title">Meu Pedido</span>
+            <button class="icon-btn" id="btn-cart-close"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="cart-body" id="cart-body"></div>
+        <div class="cart-foot" id="cart-foot" style="display:none">
+            <div class="cart-total-row">
+                <span>Total</span>
+                <strong>R$ <span id="cart-total">0,00</span></strong>
+            </div>
+            <button class="btn-whatsapp" id="btn-whatsapp">
+                <i class="fab fa-whatsapp"></i> Enviar Pedido pelo WhatsApp
+            </button>
+            <button class="btn-clear" id="btn-clear">Limpar pedido</button>
+        </div>
+    </aside>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="script.js"></script>
+    <script>
+        const app = new MorenaRaiz();
+
+        // Pega o id da URL
+        const params  = new URLSearchParams(window.location.search);
+        const id      = parseInt(params.get('id'));
+        const produto = app.produtos.find(p => p.id === id);
+        const page    = document.getElementById('produto-page');
+
+        document.getElementById('produto-loading').style.display = 'none';
+
+        if (!produto) {
+            page.innerHTML = `
+                <div class="produto-not-found">
+                    <p>Produto não encontrado.</p>
+                    <a href="index.html" class="btn-back-cat">← Ver catálogo</a>
+                </div>`;
+        } else {
+            // Título da página
+            document.title = `${produto.nome} · Morena Raiz`;
+
+            const tams  = produto.tams ? produto.tams.split(',').map(t => t.trim()) : [];
+            const isS   = produto.precoDe && produto.precoDe > produto.preco;
+            const catLb = { lancamento:'Lançamento', vestido:'Vestido', blusa:'Blusa', calca:'Calça', saias:'Saia', shorts:'Shorts', fitness:'Fitness', acessorio:'Acessório', sale:'Sale' };
+
+            page.innerHTML = `
+                <div class="produto-grid">
+                    <div class="produto-galeria">
+                        <div class="galeria-main">
+                            <img src="${produto.img||''}" alt="${produto.nome}" id="img-main"
+                                onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22600%22 height=%22800%22><rect fill=%22%23F5F2ED%22 width=%22600%22 height=%22800%22/></svg>'">
+                        </div>
+                    </div>
+
+                    <div class="produto-info">
+                        <nav class="breadcrumb">
+                            <a href="index.html">Início</a>
+                            <span>/</span>
+                            <a href="index.html" onclick="localStorage.setItem('mr_cat','${produto.cat}')">${catLb[produto.cat]||'Produtos'}</a>
+                            <span>/</span>
+                            <span>${produto.nome}</span>
+                        </nav>
+
+                        <h1 class="produto-nome">${produto.nome}</h1>
+
+                        <div class="produto-precos">
+                            ${isS ? `<span class="preco-de">R$ ${produto.precoDe.toFixed(2).replace('.',',')}</span>` : ''}
+                            <span class="preco-por${isS?' preco-sale':''}">R$ ${produto.preco.toFixed(2).replace('.',',')}</span>
+                            ${isS ? `<span class="desconto-badge">-${Math.round((1-produto.preco/produto.precoDe)*100)}%</span>` : ''}
+                        </div>
+
+                        ${tams.length ? `
+                        <div class="produto-tams-section">
+                            <p class="sec-label">Tamanho <span id="tam-sel-label"></span></p>
+                            <div class="tams-grid">
+                                ${tams.map(t => `<button class="tam-btn" data-tam="${t}">${t}</button>`).join('')}
+                            </div>
+                        </div>` : ''}
+
+                        <button class="btn-add-cart" id="btn-add-cart">
+                            <i class="fas fa-shopping-bag"></i>
+                            Adicionar ao Pedido
+                        </button>
+
+                        <button class="btn-wp-direct" id="btn-wp-direct">
+                            <i class="fab fa-whatsapp"></i>
+                            Comprar pelo WhatsApp
+                        </button>
+
+                        ${produto.desc ? `
+                        <div class="produto-desc-section">
+                            <p class="sec-label">Sobre a peça</p>
+                            <p class="produto-desc">${produto.desc}</p>
+                        </div>` : ''}
+
+                        <div class="produto-meta">
+                            ${produto.material ? `<div class="meta-row"><span>Material</span><span>${produto.material}</span></div>` : ''}
+                            ${produto.cores    ? `<div class="meta-row"><span>Cores disponíveis</span><span>${produto.cores}</span></div>` : ''}
+                            ${tams.length      ? `<div class="meta-row"><span>Tamanhos</span><span>${produto.tams}</span></div>` : ''}
+                        </div>
+
+                        <div class="produto-entrega">
+                            <div class="entrega-item"><i class="fas fa-truck"></i><span>Entregamos em toda a região</span></div>
+                            <div class="entrega-item"><i class="fas fa-undo"></i><span>Troca em até 7 dias</span></div>
+                            <div class="entrega-item"><i class="fab fa-whatsapp"></i><span>Atendimento via WhatsApp</span></div>
+                        </div>
+                    </div>
+                </div>`;
+
+            // Tamanhos
+            let tamSel = tams[0] || '';
+            if (tams.length) {
+                document.querySelectorAll('.tam-btn').forEach(btn => {
+                    if (btn.dataset.tam === tamSel) btn.classList.add('sel');
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.tam-btn').forEach(b => b.classList.remove('sel'));
+                        btn.classList.add('sel');
+                        tamSel = btn.dataset.tam;
+                        document.getElementById('tam-sel-label').textContent = `— ${tamSel}`;
+                    });
+                });
+                document.getElementById('tam-sel-label').textContent = tamSel ? `— ${tamSel}` : '';
+            }
+
+            // Adicionar ao carrinho
+            document.getElementById('btn-add-cart').addEventListener('click', () => {
+                app.addToCart(produto.id);
+                app.openCart();
+            });
+
+            // WhatsApp direto
+            document.getElementById('btn-wp-direct').addEventListener('click', () => {
+                const tam = tamSel ? ` · Tamanho: ${tamSel}` : '';
+                const msg = `🌿 Olá! Tenho interesse na peça:\n\n*${produto.nome}*${tam}\nPreço: R$ ${produto.preco.toFixed(2).replace('.',',')}\n\nPoderia me ajudar?`;
+                window.open(`https://wa.me/55${app.TELEFONE}?text=${encodeURIComponent(msg)}`, '_blank');
+            });
+
+            // Mais peças
+            const mais = app.produtos.filter(p => p.id !== id && p.cat === produto.cat).slice(0, 4);
+            if (mais.length) {
+                document.getElementById('mais-pecas').style.display = 'block';
+                document.getElementById('mais-grid').innerHTML = mais.map(p => `
+                    <a class="mais-card" href="produto.html?id=${p.id}">
+                        <div class="mais-img-wrap">
+                            <img src="${p.img||''}" alt="${p.nome}"
+                                onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22530%22><rect fill=%22%23F5F2ED%22 width=%22400%22 height=%22530%22/></svg>'">
+                        </div>
+                        <p class="mais-nome">${p.nome}</p>
+                        <p class="mais-preco">R$ ${p.preco.toFixed(2).replace('.',',')}</p>
+                    </a>`).join('');
+            }
+        }
+    </script>
+</body>
+</html>
