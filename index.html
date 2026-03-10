@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Morena Raiz | Moda Feminina </title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header Elegante -->
+    <header class="header-elegant">
+        <div class="header-top">
+            <div class="container">
+                <div class="header-content">
+                    <div class="logo">
+                        <div class="logo-icon">
+                            <i class="fas fa-crown"></i>
+                        </div>
+                        <div class="logo-text">
+                            <h1>Morena</h1>
+                            <span>Raiz</span>
+                        </div>
+                    </div>
+                    
+                    <nav class="nav-elegant">
+                        <ul>
+                            <li><a href="#" class="nav-link" data-categoria="">Novidades</a></li>
+                            <li><a href="#" class="nav-link" data-categoria="vestido">Vestidos</a></li>
+                            <li><a href="#" class="nav-link" data-categoria="blusa">Blusas</a></li>
+                            <li><a href="#" class="nav-link" data-categoria="calca">Calças</a></li>
+                            <li><a href="#" class="nav-link" data-categoria="acessorio">Acessórios</a></li>
+                        </ul>
+                    </nav>
+
+                    <div class="header-actions">
+                        <button id="btn-admin" class="btn-admin" title="Painel Administrativo">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                        <button id="btn-whatsapp" class="btn-whatsapp">
+                            <i class="fab fa-whatsapp"></i>
+                            <span>Pedir</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="header-bottom">
+            <div class="container">
+                <div class="hero-banner">
+                    <div class="hero-text">
+                        <h2>Elegância em Cada Detalhe</h2>
+                        <p>Descubra peças exclusivas que realçam sua beleza única</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <!-- Filtros Modernos -->
+            <section class="filtros-modernos">
+                <div class="filtros-header">
+                    <h3>Descubra Sua Peça Ideal</h3>
+                    <p>Filtre por categoria, tamanho ou busque por nome</p>
+                </div>
+                <div class="filtros-grid">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="busca" placeholder="Buscar produtos...">
+                    </div>
+                    <select id="categoria" class="select-elegant">
+                        <option value="">Todas as Categorias</option>
+                        <option value="vestido">Vestidos</option>
+                        <option value="blusa">Blusas</option>
+                        <option value="calca">Calças</option>
+                        <option value="saias">Saias</option>
+                        <option value="shorts">Shorts</option>
+                        <option value="fitness">Fitness</option>
+                        <option value="acessorio">Acessórios</option>
+                    </select>
+                    <select id="tamanho" class="select-elegant">
+                        <option value="">Todos os Tamanhos</option>
+                        <option value="P">P</option>
+                        <option value="M">M</option>
+                        <option value="G">G</option>
+                        <option value="GG">GG</option>
+                        <option value="PLUS">PLUS</option>
+                    </select>
+                </div>
+            </section>
+
+            <!-- Catálogo -->
+            <section class="catalogo-moderno" id="catalogo">
+                <!-- Produtos serão carregados aqui -->
+            </section>
+        </div>
+    </main>
+
+    <!-- Carrinho Flutuante Elegante -->
+    <div id="carrinho-flutuante" class="carrinho-flutuante">
+        <div class="carrinho-header">
+            <h3><i class="fas fa-shopping-bag"></i> Seu Pedido</h3>
+            <button id="fechar-carrinho" class="btn-close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div id="itens-carrinho" class="itens-carrinho">
+            <div class="carrinho-vazio">
+                <i class="fas fa-shopping-bag"></i>
+                <p>Seu pedido está vazio</p>
+                <small>Adicione produtos para enviar pelo WhatsApp</small>
+            </div>
+        </div>
+        <div class="carrinho-footer">
+            <div class="carrinho-total">
+                <span>Total:</span>
+                <strong>R$ <span id="total-carrinho">0,00</span></strong>
+            </div>
+            <button id="enviar-whatsapp" class="btn-whatsapp-full">
+                <i class="fab fa-whatsapp"></i>
+                Enviar Pedido pelo WhatsApp
+            </button>
+        </div>
+    </div>
+
+    <!-- Painel Admin Moderno -->
+    <section id="admin-panel" class="admin-panel-moderno">
+        <div class="admin-overlay"></div>
+        <div class="admin-content">
+            <div class="admin-header">
+                <h2><i class="fas fa-crown"></i> Painel Élanie</h2>
+                <button id="fechar-admin" class="btn-close-admin">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="admin-tabs">
+                <button class="tab-btn active" data-tab="cadastro">
+                    <i class="fas fa-plus-circle"></i>
+                    Novo Produto
+                </button>
+                <button class="tab-btn" data-tab="produtos">
+                    <i class="fas fa-boxes"></i>
+                    Produtos
+                </button>
+            </div>
+
+            <div class="tab-content active" id="tab-cadastro">
+                <form id="form-produto" class="form-produto-elegant">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="nome">Nome do Produto</label>
+                            <input type="text" id="nome" name="nome" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="preco">Preço (R$)</label>
+                            <input type="number" id="preco" name="preco" step="0.01" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="categoria-form">Categoria</label>
+                            <select id="categoria-form" name="categoria" required>
+                                <option value="vestido">Vestido</option>
+                                <option value="blusa">Blusa</option>
+                                <option value="calca">Calça</option>
+                                <option value="saias">Saias</option>
+                                <option value="shorts">Shorts</option>
+                                <option value="fitness">Fitness</option>
+                                <option value="acessorio">Acessório</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="tamanhos">Tamanhos</label>
+                            <input type="text" id="tamanhos" name="tamanhos" placeholder="P, M, G, GG, PLUS" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="cores">Cores Disponíveis</label>
+                            <input type="text" id="cores" name="cores" placeholder="Preto, Branco, Azul, Rosa, Amarelo, Verde, Estampado" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="material">Material</label>
+                            <input type="text" id="material" name="material" required>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label for="descricao">Descrição do Produto</label>
+                            <textarea id="descricao" name="descricao" rows="3" required></textarea>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label for="imagem">URL da Imagem</label>
+                            <input type="url" id="imagem" name="imagem" placeholder="https://exemplo.com/imagem.jpg" required>
+                            <small class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Use serviços como ImgBB para hospedar suas imagens
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn-elegant">
+                        <i class="fas fa-plus"></i>
+                        Cadastrar Produto
+                    </button>
+                </form>
+            </div>
+
+            <div class="tab-content" id="tab-produtos">
+                <div class="produtos-admin">
+                    <h3>Produtos Cadastrados</h3>
+                    <div id="lista-produtos-admin" class="lista-produtos-admin">
+                        <!-- Lista de produtos admin -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Botão Flutuante do Carrinho -->
+    <button id="btn-carrinho" class="btn-carrinho-flutuante">
+        <i class="fas fa-shopping-bag"></i>
+        <span id="contador-carrinho" class="contador-carrinho">0</span>
+    </button>
+
+    <!-- Footer Elegante -->
+    <footer class="footer-elegant">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="logo">
+                        <div class="logo-icon">
+                            <i class="fas fa-crown"></i>
+                        </div>
+                        <div class="logo-text">
+                            <h3>Morena</h3>
+                            <span>Raiz</span>
+                        </div>
+                    </div>
+                    <p>Elegância que transforma</p>
+                </div>
+                <div class="footer-info">
+                    <p><i class="fab fa-whatsapp"></i> Faça seu pedido pelo WhatsApp</p>
+                    <p><i class="fas fa-shipping-fast"></i> Entregamos em toda região</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
