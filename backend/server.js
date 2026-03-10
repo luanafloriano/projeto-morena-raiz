@@ -90,3 +90,6 @@ app.get('/produtos/todos', (req, res) => {
 }); 
 
 });
+app.listen(process.env.PORT, () => {
+    console.log(`Servidor rodando na porta ${process.env.PORT}`);
+});
