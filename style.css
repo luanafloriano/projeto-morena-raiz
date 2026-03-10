@@ -53,6 +53,18 @@ body {
 }
 
 /* Logo */
+
+.logo-img{
+height:60px;
+width:auto;
+display:block;
+}
+
+.logo{
+display:flex;
+align-items:center;
+}
+
 .logo {
     display: flex;
     align-items: center;
@@ -171,7 +183,7 @@ body {
 
 .btn-whatsapp:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
+    box-shadow: 0 5px 15px rgba(77, 231, 133, 0.3);
 }
 
 /* Hero Banner */
@@ -763,10 +775,17 @@ body {
 
 /* Footer Elegante */
 .footer-elegant {
-    background: var(--text-dark);
-    color: var(--white);
+    /* background: escolher cor desejada abaixo */
+    background: var(--offwhite);
+    /* cor do texto no rodapé - pode ser alterada aqui */
+    color: var(--secondary);
     padding: 3rem 0;
     margin-top: 4rem;
+}
+.footer-elegant .logo-img{
+    
+height:30px;
+
 }
 
 .footer-content {
@@ -857,4 +876,6 @@ body {
         padding: 1rem;
         justify-content: center;
     }
+
+
 }
