@@ -143,8 +143,45 @@
 
     <script src="script.js"></script>
     <script>
-        // INDEX specific
+        const API = 'http://localhost:3001';
         const app = new MorenaRaiz();
+
+        // BUSCA PRODUTOS DO BANCO
+        async function carregarProdutos() {
+            const catalog = document.getElementById('catalog');
+            catalog.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:4rem;color:#888">
+                <i class="fas fa-circle-notch fa-spin" style="font-size:1.5rem;display:block;margin-bottom:0.75rem"></i>
+                Carregando peças...
+            </div>`;
+
+            try {
+                const produtos = await fetch(`${API}/produtos`).then(r => r.json());
+
+                // Converte para o formato que o script.js usa
+                app.produtos = produtos.map(p => ({
+                    id:       p.id,
+                    nome:     p.nome,
+                    preco:    parseFloat(p.preco),
+                    precoDe:  null,
+                    cat:      p.categoria,
+                    tams:     p.tamanhos,
+                    cores:    p.cores,
+                    material: p.material,
+                    desc:     p.descricao,
+                    img:      p.imagem,
+                    novo:     false,
+                }));
+
+                app.renderCatalog();
+
+            } catch(e) {
+                catalog.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:4rem;color:#888">
+                    <i class="fas fa-exclamation-circle" style="font-size:1.5rem;display:block;margin-bottom:0.75rem;color:#C4A882"></i>
+                    Não foi possível carregar os produtos.<br>
+                    <small>Verifique se o servidor está rodando.</small>
+                </div>`;
+            }
+        }
 
         // NAV
         document.querySelectorAll('.nav-link').forEach(el => {
@@ -194,8 +231,8 @@
                 </a>`).join('');
         });
 
-        // RENDER
-        app.renderCatalog();
+        // INICIA
+        carregarProdutos();
     </script>
 </body>
 </html>
