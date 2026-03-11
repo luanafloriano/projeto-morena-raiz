@@ -114,37 +114,37 @@ class MorenaRaiz {
     }
 
     // ─────────── CARRINHO ───────────
-    addToCart(id) {
-        const p = this.produtos.find(x => x.id === id);
-        if (!p) return;
-        const ex = this.carrinho.find(x => x.id === id);
-        if (ex) ex.qtd++;
-        else     this.carrinho.push({ ...p, qtd: 1 });
-        this._saveCarrinho();
-        this._updateDot();
-        this.toast(`${p.nome} adicionado!`);
-        // Reseta o frete ao mudar o carrinho
-        this._frete = null;
-    }
+   addToCart(id, tam='', cor='') {
+    const p = this.produtos.find(x => x.id === id);
+    if (!p) return;
+    // Chave única por produto+tamanho+cor
+    const key = `${id}_${tam}_${cor}`;
+    const ex = this.carrinho.find(x => x._key === key);
+    if (ex) ex.qtd++;
+    else this.carrinho.push({ ...p, qtd: 1, tam, cor, _key: key });
+    this._saveCarrinho();
+    this._updateDot();
+    this.toast(`${p.nome} adicionado!`);
+    this._frete = null;
+}
+  removeFromCart(key) {
+    this.carrinho = this.carrinho.filter(x => x._key !== key);
+    this._saveCarrinho();
+    this._updateDot();
+    this._frete = null;
+    this._renderCart();
+}
 
-    removeFromCart(id) {
-        this.carrinho = this.carrinho.filter(x => x.id !== id);
-        this._saveCarrinho();
-        this._updateDot();
-        this._frete = null;
-        this._renderCart();
-    }
-
-    changeQty(id, d) {
-        const item = this.carrinho.find(x => x.id === id);
-        if (!item) return;
-        item.qtd += d;
-        if (item.qtd <= 0) { this.removeFromCart(id); return; }
-        this._saveCarrinho();
-        this._updateDot();
-        this._frete = null;
-        this._renderCart();
-    }
+changeQty(key, d) {
+    const item = this.carrinho.find(x => x._key === key);
+    if (!item) return;
+    item.qtd += d;
+    if (item.qtd <= 0) { this.removeFromCart(key); return; }
+    this._saveCarrinho();
+    this._updateDot();
+    this._frete = null;
+    this._renderCart();
+}
 
     _subTotal() {
         return this.carrinho.reduce((s,x) => s + x.preco * x.qtd, 0);
@@ -175,15 +175,16 @@ class MorenaRaiz {
                     onerror="this.style.background='var(--light)'">
                 <div class="cart-item-info">
                     <p class="cart-item-nome">${item.nome}</p>
+                    <p class="cart-item-cat">${item.tam ? `Tam: ${item.tam}` : ''}${item.tam && item.cor ? ' · ' : ''}${item.cor ? `Cor: ${item.cor}` : ''}</p>
                     <p class="cart-item-cat">${this.catLabel(item.cat)}</p>
                     <p class="cart-item-preco">R$ ${(item.preco * item.qtd).toFixed(2).replace('.', ',')}</p>
                     <div class="cart-qty">
-                        <button onclick="app.changeQty(${item.id},-1)"><i class="fas fa-minus"></i></button>
-                        <span>${item.qtd}</span>
-                        <button onclick="app.changeQty(${item.id},1)"><i class="fas fa-plus"></i></button>
-                    </div>
+    <button onclick="app.changeQty('${item._key}',-1)"><i class="fas fa-minus"></i></button>
+    <span>${item.qtd}</span>
+    <button onclick="app.changeQty('${item._key}',1)"><i class="fas fa-plus"></i></button>
+</div>
                 </div>
-                <button class="cart-item-del" onclick="app.removeFromCart(${item.id})"><i class="fas fa-trash"></i></button>
+                <button class="cart-item-del" onclick="app.removeFromCart('${item._key}')"><i class="fas fa-trash"></i></button>
             </div>`).join('');
 
         this._renderFreteSection();
