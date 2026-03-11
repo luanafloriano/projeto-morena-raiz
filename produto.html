@@ -140,13 +140,21 @@
                             ${isS ? `<span class="desconto-badge">-${Math.round((1-produto.preco/produto.precoDe)*100)}%</span>` : ''}
                         </div>
 
-                        ${tams.length ? `
-                        <div class="produto-tams-section">
-                            <p class="sec-label">Tamanho <span id="tam-sel-label"></span></p>
-                            <div class="tams-grid">
-                                ${tams.map(t => `<button class="tam-btn" data-tam="${t}">${t}</button>`).join('')}
-                            </div>
-                        </div>` : ''}
+                       ${tams.length ? `
+<div class="produto-tams-section">
+    <p class="sec-label">Tamanho <span id="tam-sel-label"></span></p>
+    <div class="tams-grid">
+        ${tams.map(t => `<button class="tam-btn" data-tam="${t}">${t}</button>`).join('')}
+    </div>
+</div>` : ''}
+
+${produto.cores ? `
+<div class="produto-tams-section" style="margin-top:1rem">
+    <p class="sec-label">Cor <span id="cor-sel-label"></span></p>
+    <div class="tams-grid">
+        ${produto.cores.split(',').map(c => `<button class="tam-btn cor-btn" data-cor="${c.trim()}">${c.trim()}</button>`).join('')}
+    </div>
+</div>` : ''}
 
                         <button class="btn-add-cart" id="btn-add-cart">
                             <i class="fas fa-shopping-bag"></i>
@@ -192,16 +200,33 @@
                 });
                 document.getElementById('tam-sel-label').textContent = tamSel ? `— ${tamSel}` : '';
             }
+            // Cores
+const cores = produto.cores ? produto.cores.split(',').map(c => c.trim()) : [];
+let corSel = cores[0] || '';
+if (cores.length) {
+    document.querySelectorAll('.cor-btn').forEach(btn => {
+        if (btn.dataset.cor === corSel) btn.classList.add('sel');
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.cor-btn').forEach(b => b.classList.remove('sel'));
+            btn.classList.add('sel');
+            corSel = btn.dataset.cor;
+            document.getElementById('cor-sel-label').textContent = `— ${corSel}`;
+        });
+    });
+    document.getElementById('cor-sel-label').textContent = corSel ? `— ${corSel}` : '';
+}
 
             // Adicionar ao carrinho
-            document.getElementById('btn-add-cart').addEventListener('click', () => {
-                app.addToCart(produto.id);
-                app.openCart();
-            });
-
-            // Comprar direto → adiciona ao carrinho e vai para checkout
+     document.getElementById('btn-add-cart').addEventListener('click', () => {
+    if (tams.length && !tamSel) { app.showToast('Selecione um tamanho!'); return; }
+    if (cores.length && !corSel) { app.showToast('Selecione uma cor!'); return; }
+    app.addToCart(produto.id, tamSel, corSel);
+    app.openCart();
+});
 document.getElementById('btn-wp-direct').addEventListener('click', () => {
-    app.addToCart(produto.id);
+    if (tams.length && !tamSel) { app.showToast('Selecione um tamanho!'); return; }
+    if (cores.length && !corSel) { app.showToast('Selecione uma cor!'); return; }
+    app.addToCart(produto.id, tamSel, corSel);
     window.location.href = 'checkout.html';
 });
 
