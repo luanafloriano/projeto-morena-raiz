@@ -129,9 +129,9 @@
             </div>
             <div class="footer-links">
                 <strong>Informações</strong>
-                <a href="#">Trocas e Devoluções</a>
-                <a href="#">Formas de Pagamento</a>
-                <a href="#">Entrega</a>
+                <a href="#" id="link-trocas">Trocas e Devoluções</a>
+<a href="#" id="link-pagamento">Formas de Pagamento</a>
+<a href="#" id="link-entrega">Entrega</a>
             </div>
         </div>
         <div class="footer-bottom">
@@ -156,7 +156,15 @@
 
             try {
                 const produtos = await fetch(`${API}/produtos`).then(r => r.json());
-
+// Carrega configs do rodapé
+fetch(`${API}/configuracoes`).then(r=>r.json()).then(cfg => {
+    if (cfg.link_trocas)    document.getElementById('link-trocas').href    = cfg.link_trocas;
+    if (cfg.link_pagamento) document.getElementById('link-pagamento').href = cfg.link_pagamento;
+    if (cfg.link_entrega)   document.getElementById('link-entrega').href   = cfg.link_entrega;
+    if (cfg.rodape_desc)    document.querySelector('.footer-brand p').textContent = cfg.rodape_desc;
+    if (cfg.rodape_copy)    document.querySelector('.footer-bottom p').textContent = cfg.rodape_copy;
+    if (cfg.banner_topo)    document.querySelector('.announcement p').textContent  = cfg.banner_topo;
+}).catch(()=>{});
                 // Converte para o formato que o script.js usa
                 app.produtos = produtos.map(p => ({
                     id:       p.id,

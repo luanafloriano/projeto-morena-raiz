@@ -398,6 +398,18 @@
                             </div>
                         </div>
                     </div>
+                    <div class="field-grp full">
+    <label>Link — Trocas e Devoluções</label>
+    <input type="text" id="cfg-trocas" placeholder="https://... ou deixe em branco">
+</div>
+<div class="field-grp full">
+    <label>Link — Formas de Pagamento</label>
+    <input type="text" id="cfg-pagamento" placeholder="https://... ou deixe em branco">
+</div>
+<div class="field-grp full">
+    <label>Link — Entrega</label>
+    <input type="text" id="cfg-entrega" placeholder="https://... ou deixe em branco">
+</div>
 
                     <div class="config-section">
                         <p class="config-section-title">Anúncio do topo</p>
@@ -912,16 +924,19 @@
     });
 
     // CONFIGURAÇÕES
-    async function carregarConfigs() {
-        try {
-            const cfg = await apiFetch('/configuracoes');
-            document.getElementById('cfg-desc').value         = cfg.rodape_desc    || '';
-            document.getElementById('cfg-copy').value         = cfg.rodape_copy    || '';
-            document.getElementById('cfg-banner').value       = cfg.banner_topo    || '';
-            document.getElementById('cfg-whatsapp').value     = cfg.whatsapp       || '';
-            document.getElementById('cfg-frete-gratis').value = cfg.frete_gratis   || '';
-        } catch { toast('Erro ao carregar configurações.', true); }
-    }
+   async function carregarConfigs() {
+    try {
+        const cfg = await apiFetch('/configuracoes');
+        document.getElementById('cfg-desc').value         = cfg.rodape_desc    || '';
+        document.getElementById('cfg-copy').value         = cfg.rodape_copy    || '';
+        document.getElementById('cfg-banner').value       = cfg.banner_topo    || '';
+        document.getElementById('cfg-whatsapp').value     = cfg.whatsapp       || '';
+        document.getElementById('cfg-frete-gratis').value = cfg.frete_gratis   || '';
+        document.getElementById('cfg-trocas').value       = cfg.link_trocas    || '';
+        document.getElementById('cfg-pagamento').value    = cfg.link_pagamento || '';
+        document.getElementById('cfg-entrega').value      = cfg.link_entrega   || '';
+    } catch { toast('Erro ao carregar configurações.', true); }
+}
 
     document.getElementById('btn-salvar-config').addEventListener('click', async () => {
         const btn = document.getElementById('btn-salvar-config');
