@@ -736,16 +736,14 @@ togglePresente(false);
 
                // Mensagem para o CLIENTE
 const wpMsgCliente = `🌿 Olá! Acabei de fazer um pedido no site!\n\n*Pedido #${String(res.id).padStart(4,'0')}*\n👤 ${nome}\n📱 ${tel}\n💳 Pagamento: ${pagSel}\n💰 Total: R$ ${tot.toFixed(2).replace('.',',')}\n\nAguardo a confirmação!`;
+
 // Botão manda mensagem para o ADMIN com todos os detalhes
 const itensTxt = carrinho.map(x => `▪ ${x.nome} x${x.qtd} — R$ ${(x.preco*x.qtd).toFixed(2).replace('.',',')}`).join('\n');
 const wpAdmin = `🛍️ *NOVO PEDIDO #${String(res.id).padStart(4,'0')}*\n\n👤 *${nome}*\n📱 ${tel}\n📍 ${body.cliente_endereco}\n\n${itensTxt}\n\n💰 Subtotal: R$ ${sub.toFixed(2).replace('.',',')}\n🚚 Frete: ${f.label}\n💳 Pagamento: ${pagSel}\n━━━━━━━━━━━\n💵 *Total: R$ ${tot.toFixed(2).replace('.',',')}*${obsCompleta ? `\n\n📝 Obs: ${obsCompleta}` : ''}`;
 document.getElementById('btn-wp-confirmacao').href = `https://wa.me/55${app.TELEFONE}?text=${encodeURIComponent(wpAdmin)}`;
 document.getElementById('btn-wp-confirmacao').innerHTML = '<i class="fab fa-whatsapp"></i> Confirmar pedido pelo WhatsApp';
-// Notifica VOCÊ (admin) automaticamente
-const itensTxt = carrinho.map(x => `▪ ${x.nome} x${x.qtd} — R$ ${(x.preco*x.qtd).toFixed(2).replace('.',',')}`).join('\n');
-const wpAdmin = `🛍️ *NOVO PEDIDO #${String(res.id).padStart(4,'0')}*\n\n👤 *${nome}*\n📱 ${tel}\n📍 ${body.cliente_endereco}\n\n${itensTxt}\n\n💰 Subtotal: R$ ${sub.toFixed(2).replace('.',',')}\n🚚 Frete: ${f.label}\n💳 Pagamento: ${pagSel}\n━━━━━━━━━━━\n💵 *Total: R$ ${tot.toFixed(2).replace('.',',')}*${obsCompleta ? `\n\n📝 Obs: ${obsCompleta}` : ''}`;
 
-                // Atualiza steps
+// Atualiza steps
                 document.querySelectorAll('.step').forEach((s, i) => {
                     s.className = 'step done';
                     s.querySelector('.step-num').innerHTML = '<i class="fas fa-check" style="font-size:8px"></i>';
