@@ -942,12 +942,15 @@
         const btn = document.getElementById('btn-salvar-config');
         btn.disabled=true; btn.innerHTML='<i class="fas fa-circle-notch fa-spin"></i> Salvando...';
         const body = {
-            rodape_desc:  document.getElementById('cfg-desc').value.trim(),
-            rodape_copy:  document.getElementById('cfg-copy').value.trim(),
-            banner_topo:  document.getElementById('cfg-banner').value.trim(),
-            whatsapp:     document.getElementById('cfg-whatsapp').value.trim(),
-            frete_gratis: document.getElementById('cfg-frete-gratis').value.trim(),
-        };
+    rodape_desc:  document.getElementById('cfg-desc').value.trim(),
+    rodape_copy:  document.getElementById('cfg-copy').value.trim(),
+    banner_topo:  document.getElementById('cfg-banner').value.trim(),
+    whatsapp:     document.getElementById('cfg-whatsapp').value.trim(),
+    frete_gratis: document.getElementById('cfg-frete-gratis').value.trim(),
+    link_trocas:    document.getElementById('cfg-trocas').value.trim(),
+    link_pagamento: document.getElementById('cfg-pagamento').value.trim(),
+    link_entrega:   document.getElementById('cfg-entrega').value.trim(),
+};
         try {
             await apiFetch('/configuracoes', {method:'POST',body:JSON.stringify(body)});
             toast('Configurações salvas!');
