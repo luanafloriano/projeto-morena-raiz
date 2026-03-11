@@ -13,26 +13,12 @@ db.connect(err => {
     if (err) { console.error('Erro:', err); return; }
     console.log('Conectado!');
 
-    db.query(`CREATE TABLE IF NOT EXISTS pedidos (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        cliente_nome VARCHAR(150) NOT NULL,
-        cliente_email VARCHAR(150),
-        cliente_telefone VARCHAR(20),
-        cliente_cep VARCHAR(10),
-        cliente_endereco VARCHAR(300),
-        itens JSON NOT NULL,
-        subtotal DECIMAL(10,2) NOT NULL,
-        frete_tipo VARCHAR(20),
-        frete_valor DECIMAL(10,2) DEFAULT 0,
-        total DECIMAL(10,2) NOT NULL,
-        pagamento VARCHAR(30),
-        status VARCHAR(30) DEFAULT 'pendente',
-        observacao TEXT,
-        criado_em DATETIME DEFAULT NOW(),
-        atualizado_em DATETIME DEFAULT NOW() ON UPDATE NOW()
+    db.query(`CREATE TABLE IF NOT EXISTS configuracoes (
+        chave VARCHAR(100) PRIMARY KEY,
+        valor TEXT
     )`, (err) => {
         if (err) console.error('Erro:', err);
-        else console.log('Tabela pedidos criada!');
+        else console.log('Tabela configuracoes criada!');
         db.end();
     });
 });
