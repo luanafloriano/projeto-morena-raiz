@@ -520,11 +520,16 @@
                 <!-- PRESENTE -->
                 <div class="form-section">
                     <p class="form-section-title"><i class="fas fa-gift"></i> É um presente?</p>
-                    <div class="presente-toggle" id="presente-toggle" onclick="togglePresente()">
-                        <i class="fas fa-gift"></i>
-                        <span>Sim, quero enviar como presente</span>
-                        <i class="fas fa-chevron-down" style="margin-left:auto;font-size:0.7rem;color:var(--muted)"></i>
-                    </div>
+                    <div style="display:flex;gap:0.6rem">
+    <div class="pag-btn" id="presente-nao" onclick="togglePresente(false)" style="flex:1" class="sel">
+        <i class="fas fa-times"></i>
+        <span>Não</span>
+    </div>
+    <div class="pag-btn" id="presente-sim" onclick="togglePresente(true)" style="flex:1">
+        <i class="fas fa-gift"></i>
+        <span>Sim!</span>
+    </div>
+</div>
                     <div class="presente-fields" id="presente-fields">
                         <div class="form-row full" style="margin-top:0">
                             <div class="field">
@@ -646,12 +651,15 @@
         }
 
         // PRESENTE
-        let ehPresente = false;
-        function togglePresente() {
-            ehPresente = !ehPresente;
-            document.getElementById('presente-toggle').classList.toggle('ativo', ehPresente);
-            document.getElementById('presente-fields').classList.toggle('show', ehPresente);
-        }
+       let ehPresente = false;
+function togglePresente(val) {
+    ehPresente = val;
+    document.getElementById('presente-sim').classList.toggle('sel', val);
+    document.getElementById('presente-nao').classList.toggle('sel', !val);
+    document.getElementById('presente-fields').classList.toggle('show', val);
+}
+// Inicia com "Não" selecionado
+togglePresente(false);
 
         // CONFIRMAR PEDIDO
         async function confirmarPedido() {

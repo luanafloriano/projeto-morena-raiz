@@ -199,12 +199,11 @@
                 app.openCart();
             });
 
-            // WhatsApp direto
-            document.getElementById('btn-wp-direct').addEventListener('click', () => {
-                const tam = tamSel ? ` · Tamanho: ${tamSel}` : '';
-                const msg = `🌿 Olá! Tenho interesse na peça:\n\n*${produto.nome}*${tam}\nPreço: R$ ${produto.preco.toFixed(2).replace('.',',')}\n\nPoderia me ajudar?`;
-                window.open(`https://wa.me/55${app.TELEFONE}?text=${encodeURIComponent(msg)}`, '_blank');
-            });
+            // Comprar direto → adiciona ao carrinho e vai para checkout
+document.getElementById('btn-wp-direct').addEventListener('click', () => {
+    app.addToCart(produto.id);
+    window.location.href = 'checkout.html';
+});
 
             // Mais peças
             const mais = app.produtos.filter(p => p.id !== id && p.cat === produto.cat).slice(0, 4);
