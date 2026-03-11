@@ -186,21 +186,22 @@ ${produto.cores ? `
                     </div>
                 </div>`;
 
-            // Tamanhos
-            let tamSel = tams[0] || '';
-            if (tams.length) {
-                document.querySelectorAll('.tam-btn').forEach(btn => {
-                    if (btn.dataset.tam === tamSel) btn.classList.add('sel');
-                    btn.addEventListener('click', () => {
-                        document.querySelectorAll('.tam-btn').forEach(b => b.classList.remove('sel'));
-                        btn.classList.add('sel');
-                        tamSel = btn.dataset.tam;
-                        document.getElementById('tam-sel-label').textContent = `— ${tamSel}`;
-                    });
-                });
-                document.getElementById('tam-sel-label').textContent = tamSel ? `— ${tamSel}` : '';
-            }
-            // Cores
+        // Tamanhos
+let tamSel = tams[0] || '';
+if (tams.length) {
+    document.querySelectorAll('.tam-btn:not(.cor-btn)').forEach(btn => {
+        if (btn.dataset.tam === tamSel) btn.classList.add('sel');
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tam-btn:not(.cor-btn)').forEach(b => b.classList.remove('sel'));
+            btn.classList.add('sel');
+            tamSel = btn.dataset.tam;
+            document.getElementById('tam-sel-label').textContent = `— ${tamSel}`;
+        });
+    });
+    document.getElementById('tam-sel-label').textContent = tamSel ? `— ${tamSel}` : '';
+}
+
+// Cores
 const cores = produto.cores ? produto.cores.split(',').map(c => c.trim()) : [];
 let corSel = cores[0] || '';
 if (cores.length) {
@@ -215,7 +216,6 @@ if (cores.length) {
     });
     document.getElementById('cor-sel-label').textContent = corSel ? `— ${corSel}` : '';
 }
-
             // Adicionar ao carrinho
      document.getElementById('btn-add-cart').addEventListener('click', () => {
     if (tams.length && !tamSel) { app.showToast('Selecione um tamanho!'); return; }
