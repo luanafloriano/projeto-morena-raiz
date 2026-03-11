@@ -129,9 +129,9 @@
             </div>
             <div class="footer-links">
                 <strong>Informações</strong>
-                <a href="#" id="link-trocas">Trocas e Devoluções</a>
-<a href="#" id="link-pagamento">Formas de Pagamento</a>
-<a href="#" id="link-entrega">Entrega</a>
+                <a href="#" onclick="abrirModal('trocas');return false">Trocas e Devoluções</a>
+<a href="#" onclick="abrirModal('pagamento');return false">Formas de Pagamento</a>
+<a href="#" onclick="abrirModal('entrega');return false">Entrega</a>
             </div>
         </div>
         <div class="footer-bottom">
@@ -242,5 +242,39 @@ fetch(`${API}/configuracoes`).then(r=>r.json()).then(cfg => {
         // INICIA
         carregarProdutos();
     </script>
+    <!-- MODAL INFO -->
+<div id="modal-info-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;align-items:center;justify-content:center;padding:1rem">
+    <div style="background:#fff;max-width:560px;width:100%;max-height:80vh;overflow-y:auto;border-radius:4px;padding:2rem;position:relative">
+        <button onclick="fecharModalInfo()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.2rem;cursor:pointer;color:#888">×</button>
+        <h3 id="modal-info-titulo" style="font-family:'Playfair Display',serif;font-size:1.3rem;margin-bottom:1rem"></h3>
+        <p id="modal-info-texto" style="font-size:14px;line-height:1.7;white-space:pre-line;color:#444"></p>
+    </div>
+</div>
+
+<script>
+let _cfgInfo = {};
+fetch(`${API}/configuracoes`).then(r=>r.json()).then(cfg => {
+    _cfgInfo = cfg;
+    if (cfg.rodape_desc) document.querySelector('.footer-brand p').textContent = cfg.rodape_desc;
+    if (cfg.rodape_copy) document.querySelector('.footer-bottom p').textContent = cfg.rodape_copy;
+    if (cfg.banner_topo) document.querySelector('.announcement p').textContent  = cfg.banner_topo;
+}).catch(()=>{});
+
+const _modalTitulos = { trocas:'Trocas e Devoluções', pagamento:'Formas de Pagamento', entrega:'Entrega' };
+const _modalChaves  = { trocas:'link_trocas', pagamento:'link_pagamento', entrega:'link_entrega' };
+
+function abrirModal(tipo) {
+    const overlay = document.getElementById('modal-info-overlay');
+    document.getElementById('modal-info-titulo').textContent = _modalTitulos[tipo];
+    document.getElementById('modal-info-texto').textContent  = _cfgInfo[_modalChaves[tipo]] || 'Em breve.';
+    overlay.style.display = 'flex';
+}
+function fecharModalInfo() {
+    document.getElementById('modal-info-overlay').style.display = 'none';
+}
+document.getElementById('modal-info-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('modal-info-overlay')) fecharModalInfo();
+});
+</script>
 </body>
 </html>
