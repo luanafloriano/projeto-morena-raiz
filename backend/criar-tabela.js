@@ -13,12 +13,9 @@ db.connect(err => {
     if (err) { console.error('Erro:', err); return; }
     console.log('Conectado!');
 
-    db.query(`CREATE TABLE IF NOT EXISTS configuracoes (
-        chave VARCHAR(100) PRIMARY KEY,
-        valor TEXT
-    )`, (err) => {
-        if (err) console.error('Erro:', err);
-        else console.log('Tabela configuracoes criada!');
+    db.query(`ALTER TABLE produtos ADD COLUMN estoque JSON`, (err) => {
+        if (err) console.error('Erro:', err.message);
+        else console.log('Coluna estoque adicionada!');
         db.end();
     });
 });

@@ -65,10 +65,10 @@ app.post('/produtos', (req, res) => {
 });
 
 app.put('/produtos/:id', (req, res) => {
-  const { nome, preco, categoria, tamanhos, cores, material, descricao, imagem, destaque, ativo } = req.body;
+  const { nome, preco, categoria, tamanhos, cores, material, descricao, imagem, destaque, ativo, estoque } = req.body;
   db.query(
-    'UPDATE produtos SET nome=?, preco=?, categoria=?, tamanhos=?, cores=?, material=?, descricao=?, imagem=?, destaque=?, ativo=? WHERE id=?',
-    [nome, preco, categoria, tamanhos, cores, material, descricao, imagem, destaque, ativo, req.params.id],
+    'UPDATE produtos SET nome=?, preco=?, categoria=?, tamanhos=?, cores=?, material=?, descricao=?, imagem=?, destaque=?, ativo=?, estoque=? WHERE id=?',
+    [nome, preco, categoria, tamanhos, cores, material, descricao, imagem, destaque, ativo, estoque ? JSON.stringify(estoque) : null, req.params.id],
     (err) => {
       if (err) return res.status(500).json({ erro: err.message });
       res.json({ mensagem: 'Produto atualizado!' });
@@ -145,6 +145,26 @@ app.post('/configuracoes', (req, res) => {
       res.json({ mensagem: 'Configurações salvas!' });
     }
   );
+});
+// Baixar estoque após pedido
+app.patch('/produtos/:id/estoque', (req, res) => {
+  const { tamanho, quantidade } = req.body;
+  db.query('SELECT estoque FROM produtos WHERE id = ?', [req.params.id], (err, results) => {
+    if (err) return res.status(500).json({ erro: err.message });
+    if (!results.length) return res.status(404).json({ erro: 'Produto não encontrado' });
+
+    let estoque = {};
+    try { estoque = JSON.parse(results[0].estoque || '{}'); } catch(_) {}
+
+    if (tamanho) {
+      estoque[tamanho] = Math.max(0, (estoque[tamanho] || 0) - (quantidade || 1));
+    }
+
+    db.query('UPDATE produtos SET estoque = ? WHERE id = ?', [JSON.stringify(estoque), req.params.id], (err) => {
+      if (err) return res.status(500).json({ erro: err.message });
+      res.json({ mensagem: 'Estoque atualizado!', estoque });
+    });
+  });
 });
 
 app.listen(process.env.PORT || 3001, () => {
