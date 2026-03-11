@@ -135,9 +135,23 @@ class MorenaRaiz {
     this._renderCart();
 }
 
-changeQty(key, d) {
+async changeQty(key, d) {
     const item = this.carrinho.find(x => x._key === key);
     if (!item) return;
+
+    // Se está aumentando, verifica estoque
+    if (d > 0 && item.tam && item.cor) {
+        try {
+            const res = await fetch(`${this.API}/produtos/${item.id}/estoque`).then(r => r.json());
+            const sku = `${item.tam}_${item.cor}`;
+            const disponivel = res.estoque?.[sku] || 0;
+            if (item.qtd + d > disponivel) {
+                this.toast(`Só temos ${disponivel} unidade${disponivel !== 1 ? 's' : ''} disponível!`);
+                return;
+            }
+        } catch(_) {}
+    }
+
     item.qtd += d;
     if (item.qtd <= 0) { this.removeFromCart(key); return; }
     this._saveCarrinho();
