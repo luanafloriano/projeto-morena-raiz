@@ -187,51 +187,15 @@ ${produto.cores ? `
                     </div>
                 </div>`;
 
-       // Tamanhos — desabilita sem estoque
-let tamSel = '';
-if (tams.length) {
-    // Encontra primeiro tamanho disponível
-    for (const t of tams) {
-        const temEstoque = cores.length
-            ? cores.some(c => (produto.estoque[`${t}_${c.trim()}`] || 0) > 0)
-            : true;
-        if (temEstoque) { tamSel = t; break; }
-    }
-
-    document.querySelectorAll('.tam-btn:not(.cor-btn)').forEach(btn => {
-        const t = btn.dataset.tam;
-        const temEstoque = cores.length
-            ? cores.some(c => (produto.estoque[`${t}_${c.trim()}`] || 0) > 0)
-            : true;
-        if (!temEstoque) {
-            btn.disabled = true;
-            btn.style.opacity = '0.35';
-            btn.style.textDecoration = 'line-through';
-            btn.style.cursor = 'not-allowed';
-        }
-        if (btn.dataset.tam === tamSel) btn.classList.add('sel');
-        btn.addEventListener('click', () => {
-            if (btn.disabled) return;
-            document.querySelectorAll('.tam-btn:not(.cor-btn)').forEach(b => b.classList.remove('sel'));
-            btn.classList.add('sel');
-            tamSel = btn.dataset.tam;
-            document.getElementById('tam-sel-label').textContent = `— ${tamSel}`;
-            // Atualiza cores disponíveis para o tamanho selecionado
-            atualizarCoresDisponiveis(tamSel);
-        });
-    });
-    document.getElementById('tam-sel-label').textContent = tamSel ? `— ${tamSel}` : '';
-}
-
-// Cores — desabilita sem estoque
+       // Prepara cores e estoque
 const cores = produto.cores ? produto.cores.split(',').map(c => c.trim()) : [];
+let tamSel = '';
 let corSel = '';
 
 function atualizarCoresDisponiveis(tam) {
     document.querySelectorAll('.cor-btn').forEach(btn => {
         const c = btn.dataset.cor;
-        const sku = `${tam}_${c}`;
-        const qty = produto.estoque[sku] || 0;
+        const qty = produto.estoque[`${tam}_${c}`] || 0;
         if (qty === 0) {
             btn.disabled = true;
             btn.style.opacity = '0.35';
@@ -249,9 +213,8 @@ function atualizarCoresDisponiveis(tam) {
             btn.style.cursor = 'pointer';
         }
     });
-    // Seleciona primeira cor disponível
     if (!corSel) {
-        const primeira = document.querySelector('.cor-btn:not([disabled])');
+        const primeira = document.querySelector('.cor-btn:not(:disabled)');
         if (primeira) {
             primeira.classList.add('sel');
             corSel = primeira.dataset.cor;
@@ -260,6 +223,41 @@ function atualizarCoresDisponiveis(tam) {
     }
 }
 
+// Tamanhos
+if (tams.length) {
+    for (const t of tams) {
+        const temEstoque = cores.length
+            ? cores.some(c => (produto.estoque[`${t}_${c}`] || 0) > 0)
+            : true;
+        if (temEstoque) { tamSel = t; break; }
+    }
+
+    document.querySelectorAll('.tam-btn:not(.cor-btn)').forEach(btn => {
+        const t = btn.dataset.tam;
+        const temEstoque = cores.length
+            ? cores.some(c => (produto.estoque[`${t}_${c}`] || 0) > 0)
+            : true;
+        if (!temEstoque) {
+            btn.disabled = true;
+            btn.style.opacity = '0.35';
+            btn.style.textDecoration = 'line-through';
+            btn.style.cursor = 'not-allowed';
+        }
+        if (btn.dataset.tam === tamSel) btn.classList.add('sel');
+        btn.addEventListener('click', () => {
+            if (btn.disabled) return;
+            document.querySelectorAll('.tam-btn:not(.cor-btn)').forEach(b => b.classList.remove('sel'));
+            btn.classList.add('sel');
+            tamSel = btn.dataset.tam;
+            document.getElementById('tam-sel-label').textContent = `— ${tamSel}`;
+            atualizarCoresDisponiveis(tamSel);
+        });
+    });
+    if (document.getElementById('tam-sel-label'))
+        document.getElementById('tam-sel-label').textContent = tamSel ? `— ${tamSel}` : '';
+}
+
+// Cores
 if (cores.length) {
     document.querySelectorAll('.cor-btn').forEach(btn => {
         btn.addEventListener('click', () => {
