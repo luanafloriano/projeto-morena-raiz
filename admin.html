@@ -759,7 +759,10 @@ tamField.addEventListener('input', () => renderEstoqueGrid(tamField.value, {}));
         const btn = document.getElementById('btn-salvar-edicao');
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Salvando...';
-        
+        // Coleta estoque
+        const estoqueInputs = document.querySelectorAll('#e-estoque-grid input');
+        const estoque = {};
+        estoqueInputs.forEach(inp => { estoque[inp.dataset.tam] = parseInt(inp.value) || 0; });
         const body = {
     nome: document.getElementById('e-nome').value.trim(),
     preco: parseFloat(document.getElementById('e-preco').value),
