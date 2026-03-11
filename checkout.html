@@ -725,10 +725,23 @@ togglePresente(false);
                     body: JSON.stringify(body)
                 }).then(r => r.json());
 
-                // Limpa carrinho
-                app.carrinho = [];
-                app._saveCarrinho();
+               // Limpa carrinho
+app.carrinho = [];
+app._saveCarrinho();
 
+// Baixa estoque de cada item
+for (const item of carrinho) {
+    if (item.id && item.tam && item.cor) {
+        const sku = `${item.tam}_${item.cor}`;
+        try {
+            await fetch(`${API}/produtos/${item.id}/estoque`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sku, quantidade: item.qtd })
+            });
+        } catch(_) {}
+    }
+}
                 // Mostra sucesso
                 btn.style.display = 'none';
                 document.getElementById('pedido-sucesso').style.display = 'block';
