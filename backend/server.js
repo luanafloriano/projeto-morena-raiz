@@ -166,6 +166,36 @@ app.patch('/produtos/:id/estoque', (req, res) => {
     });
   });
 });
+// Buscar estoque de um produto
+app.get('/produtos/:id/estoque', (req, res) => {
+  db.query('SELECT estoque FROM produtos WHERE id = ?', [req.params.id], (err, results) => {
+    if (err) return res.status(500).json({ erro: err.message });
+    if (!results.length) return res.status(404).json({ erro: 'Produto não encontrado' });
+    let estoque = {};
+    try { estoque = JSON.parse(results[0].estoque || '{}'); } catch(_) {}
+    res.json(estoque);
+  });
+});
+
+// Baixar estoque após pedido confirmado
+app.patch('/produtos/:id/estoque', (req, res) => {
+  const { sku, quantidade } = req.body;
+  db.query('SELECT estoque FROM produtos WHERE id = ?', [req.params.id], (err, results) => {
+    if (err) return res.status(500).json({ erro: err.message });
+    if (!results.length) return res.status(404).json({ erro: 'Produto não encontrado' });
+    let estoque = {};
+    try { estoque = JSON.parse(results[0].estoque || '{}'); } catch(_) {}
+    if (sku) {
+      const atual = estoque[sku] || 0;
+      if (atual < (quantidade || 1)) return res.status(400).json({ erro: 'Estoque insuficiente' });
+      estoque[sku] = atual - (quantidade || 1);
+    }
+    db.query('UPDATE produtos SET estoque = ? WHERE id = ?', [JSON.stringify(estoque), req.params.id], (err) => {
+      if (err) return res.status(500).json({ erro: err.message });
+      res.json({ mensagem: 'Estoque atualizado!', estoque });
+    });
+  });
+});
 
 app.listen(process.env.PORT || 3001, () => {
   console.log(`Servidor rodando na porta ${process.env.PORT || 3001}`);
