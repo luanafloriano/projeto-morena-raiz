@@ -104,18 +104,34 @@ class MorenaRaiz {
     }
 
     // ─────────── CARRINHO ───────────
-    addToCart(id, tam='', cor='') {
-        const p = this.produtos.find(x => x.id === id);
-        if (!p) return;
-        const key = `${id}_${tam}_${cor}`;
-        const ex  = this.carrinho.find(x => x._key === key);
-        if (ex) ex.qtd++;
-        else    this.carrinho.push({ ...p, qtd: 1, tam, cor, _key: key });
-        this._saveCarrinho();
-        this._updateDot();
-        this.toast(`${p.nome} adicionado!`);
-        this._frete = null;
+   async addToCart(id, tam='', cor='') {
+    const p = this.produtos.find(x => x.id === id);
+    if (!p) return;
+
+    // Verifica estoque antes de adicionar
+    if (tam && cor) {
+        try {
+            const res = await fetch(`${this.API}/produtos/${id}/estoque`).then(r => r.json());
+            const sku = `${tam}_${cor}`;
+            const disponivel = (res.estoque && res.estoque[sku]) ? res.estoque[sku] : 0;
+            const noCarrinho = this.carrinho.find(x => x._key === `${id}_${tam}_${cor}`);
+            const qtdNoCarrinho = noCarrinho ? noCarrinho.qtd : 0;
+            if (qtdNoCarrinho + 1 > disponivel) {
+                this.toast(`Só temos ${disponivel} unidade${disponivel !== 1 ? 's' : ''} disponível!`);
+                return;
+            }
+        } catch(_) {}
     }
+
+    const key = `${id}_${tam}_${cor}`;
+    const ex  = this.carrinho.find(x => x._key === key);
+    if (ex) ex.qtd++;
+    else    this.carrinho.push({ ...p, qtd: 1, tam, cor, _key: key });
+    this._saveCarrinho();
+    this._updateDot();
+    this.toast(`${p.nome} adicionado!`);
+    this._frete = null;
+}
 
     removeFromCart(key) {
         this.carrinho = this.carrinho.filter(x => x._key !== key);
