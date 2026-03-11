@@ -420,6 +420,11 @@
                 <div class="field-grp"><label>Material</label><input type="text" id="e-material"></div>
                 <div class="field-grp full"><label>Descrição</label><textarea id="e-desc" rows="3"></textarea></div>
                 <div class="field-grp full"><label>URL da Imagem</label><input type="url" id="e-img"></div>
+                <div class="field-grp full" id="e-estoque-wrap">
+    <label>Estoque por tamanho</label>
+    <div id="e-estoque-grid" style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.25rem"></div>
+    <small>Preencha os tamanhos acima primeiro</small>
+</div>
                 <div class="field-grp">
                     <label>Aparecer na home?</label>
                     <div class="toggle-row" style="margin-top:0.4rem">
@@ -705,7 +710,18 @@
 
     // EDITAR PRODUTO
     let editandoId = null;
-
+function renderEstoqueGrid(tamsStr, estoqueAtual) {
+    const grid = document.getElementById('e-estoque-grid');
+    if (!grid) return;
+    const tams = tamsStr ? tamsStr.split(',').map(t => t.trim()).filter(Boolean) : [];
+    if (!tams.length) { grid.innerHTML = '<span style="font-size:12px;color:var(--muted)">Nenhum tamanho cadastrado</span>'; return; }
+    grid.innerHTML = tams.map(t => `
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0.25rem">
+            <span style="font-size:11px;font-weight:600;letter-spacing:1px">${t}</span>
+            <input type="number" min="0" value="${estoqueAtual[t]||0}" data-tam="${t}"
+                style="width:60px;text-align:center;border:1px solid var(--border);border-radius:2px;padding:0.4rem;font-family:'Outfit',sans-serif;font-size:13px">
+        </div>`).join('');
+}
     function abrirEditar(id) {
         const p = todosProdutos.find(x => x.id === id);
         if (!p) return;
@@ -721,6 +737,12 @@
         document.getElementById('e-destaque').checked = !!p.destaque;
         document.getElementById('e-ativo').checked    = !!p.ativo;
         document.getElementById('modal-editar').classList.add('open');
+
+        // Renderiza campos de estoque
+const tamField = document.getElementById('e-tam');
+renderEstoqueGrid(tamField.value, typeof p.estoque === 'string' ? JSON.parse(p.estoque||'{}') : (p.estoque||{}));
+tamField.addEventListener('input', () => renderEstoqueGrid(tamField.value, {}));
+
     }
 
     function fecharModal() {
@@ -737,18 +759,20 @@
         const btn = document.getElementById('btn-salvar-edicao');
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Salvando...';
+        
         const body = {
-            nome: document.getElementById('e-nome').value.trim(),
-            preco: parseFloat(document.getElementById('e-preco').value),
-            categoria: document.getElementById('e-cat').value,
-            tamanhos: document.getElementById('e-tam').value.trim(),
-            cores: document.getElementById('e-cores').value.trim(),
-            material: document.getElementById('e-material').value.trim(),
-            descricao: document.getElementById('e-desc').value.trim(),
-            imagem: document.getElementById('e-img').value.trim(),
-            destaque: document.getElementById('e-destaque').checked ? 1 : 0,
-            ativo: document.getElementById('e-ativo').checked ? 1 : 0,
-        };
+    nome: document.getElementById('e-nome').value.trim(),
+    preco: parseFloat(document.getElementById('e-preco').value),
+    categoria: document.getElementById('e-cat').value,
+    tamanhos: document.getElementById('e-tam').value.trim(),
+    cores: document.getElementById('e-cores').value.trim(),
+    material: document.getElementById('e-material').value.trim(),
+    descricao: document.getElementById('e-desc').value.trim(),
+    imagem: document.getElementById('e-img').value.trim(),
+    destaque: document.getElementById('e-destaque').checked ? 1 : 0,
+    ativo: document.getElementById('e-ativo').checked ? 1 : 0,
+    estoque,
+};
         try {
             await apiFetch(`/produtos/${editandoId}`, { method: 'PUT', body: JSON.stringify(body) });
             toast('Produto atualizado!');
