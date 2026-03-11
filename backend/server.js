@@ -131,7 +131,31 @@ app.get('/produtos/todos', (req, res) => {
     res.json(results);
   });
 }); 
+// ── CONFIGURAÇÕES ──
 
+// Buscar todas as configurações
+app.get('/configuracoes', (req, res) => {
+    db.query('SELECT * FROM configuracoes', (err, results) => {
+        if (err) return res.status(500).json({ erro: err.message });
+        const config = {};
+        results.forEach(r => config[r.chave] = r.valor);
+        res.json(config);
+    });
+});
+
+// Salvar configuração
+app.post('/configuracoes', (req, res) => {
+    const entries = Object.entries(req.body);
+    if (!entries.length) return res.json({ mensagem: 'Nada para salvar.' });
+    
+    const sql = 'INSERT INTO configuracoes (chave, valor) VALUES ? ON DUPLICATE KEY UPDATE valor = VALUES(valor)';
+    const values = entries.map(([k, v]) => [k, v]);
+    
+    db.query(sql, [values], (err) => {
+        if (err) return res.status(500).json({ erro: err.message });
+        res.json({ mensagem: 'Configurações salvas!' });
+    });
+});
 });
 app.listen(process.env.PORT || 3001, () => {
     console.log(`Servidor rodando na porta ${process.env.PORT || 3001}`);
