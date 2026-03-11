@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finalizar Pedido · Morena Raiz</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .checkout-page {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 4rem;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2.5rem;
+            align-items: start;
+        }
+
+        .checkout-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+            font-weight: 400;
+            margin-bottom: 2rem;
+            color: var(--dark);
+        }
+
+        /* STEPS */
+        .steps {
+            display: flex;
+            gap: 0;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1rem;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            color: var(--muted);
+            padding-right: 1.5rem;
+        }
+
+        .step.active { color: var(--dark); }
+        .step.done { color: var(--tan); }
+
+        .step-num {
+            width: 22px; height: 22px;
+            border-radius: 50%;
+            border: 1px solid currentColor;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px;
+            flex-shrink: 0;
+        }
+
+        .step.done .step-num { background: var(--tan); border-color: var(--tan); color: #fff; }
+        .step.active .step-num { background: var(--dark); border-color: var(--dark); color: #fff; }
+
+        /* FORM SECTIONS */
+        .form-section {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-section-title {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-section-title i { color: var(--tan); }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; }
+        .form-row.full { grid-template-columns: 1fr; }
+        .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
+
+        .field { display: flex; flex-direction: column; gap: 0.3rem; }
+
+        .field label {
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .field input,
+        .field select,
+        .field textarea {
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            padding: 0.65rem 0.85rem;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 300;
+            color: var(--dark);
+            background: var(--off);
+            transition: border-color 0.2s;
+            resize: vertical;
+        }
+
+        .field input:focus,
+        .field select:focus,
+        .field textarea:focus {
+            outline: none;
+            border-color: var(--dark);
+            background: #fff;
+        }
+
+        .field input.erro { border-color: #ef4444; }
+
+        /* PAGAMENTO */
+        .pagamento-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.6rem;
+        }
+
+        .pag-btn {
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            padding: 0.75rem 0.5rem;
+            background: var(--off);
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .pag-btn i { display: block; font-size: 1.1rem; margin-bottom: 0.3rem; color: var(--muted); }
+        .pag-btn span { font-size: 11px; font-weight: 500; color: var(--muted); }
+        .pag-btn:hover { border-color: var(--dark); }
+        .pag-btn.sel { border-color: var(--dark); background: var(--cream); }
+        .pag-btn.sel i, .pag-btn.sel span { color: var(--dark); }
+
+        /* PRESENTE */
+        .presente-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            background: var(--off);
+            transition: all 0.2s;
+        }
+
+        .presente-toggle:hover { border-color: var(--dark); }
+        .presente-toggle.ativo { border-color: var(--tan); background: #fdf8f3; }
+
+        .presente-toggle i { color: var(--tan); font-size: 1rem; }
+        .presente-toggle span { font-size: 13px; font-weight: 400; }
+
+        .presente-fields { display: none; margin-top: 0.85rem; }
+        .presente-fields.show { display: block; }
+
+        /* RESUMO LATERAL */
+        .resumo {
+            position: sticky;
+            top: 5rem;
+        }
+
+        .resumo-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .resumo-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            background: var(--off);
+        }
+
+        .resumo-header h3 {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .resumo-itens { padding: 1rem 1.5rem; }
+
+        .resumo-item {
+            display: flex;
+            gap: 0.75rem;
+            padding: 0.65rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .resumo-item:last-child { border-bottom: none; }
+
+        .resumo-item-img {
+            width: 52px; height: 65px;
+            object-fit: cover;
+            border-radius: 2px;
+            background: var(--cream);
+            flex-shrink: 0;
+        }
+
+        .resumo-item-info { flex: 1; }
+        .resumo-item-nome { font-size: 13px; font-weight: 400; line-height: 1.3; }
+        .resumo-item-cat { font-size: 11px; color: var(--muted); margin-top: 0.15rem; }
+        .resumo-item-preco { font-size: 13px; font-weight: 500; margin-top: 0.25rem; }
+        .resumo-item-qtd { font-size: 11px; color: var(--muted); }
+
+        .resumo-totais {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border);
+            background: var(--off);
+        }
+
+        .resumo-linha {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            padding: 0.3rem 0;
+            color: var(--muted);
+        }
+
+        .resumo-linha.total {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--dark);
+            border-top: 1px solid var(--border);
+            margin-top: 0.5rem;
+            padding-top: 0.75rem;
+        }
+
+        .resumo-frete-gratis {
+            font-size: 11px;
+            color: #16a34a;
+            font-weight: 500;
+        }
+
+        /* BOTÃO CONFIRMAR */
+        .btn-confirmar {
+            width: 100%;
+            background: var(--dark);
+            color: #fff;
+            border: none;
+            padding: 1rem;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 1rem;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-confirmar:hover { background: var(--brown); }
+        .btn-confirmar:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        /* SUCESSO */
+        .pedido-sucesso {
+            display: none;
+            text-align: center;
+            padding: 3rem 1.5rem;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+        }
+
+        .sucesso-icon {
+            width: 64px; height: 64px;
+            border-radius: 50%;
+            background: #dcfce7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.25rem;
+            font-size: 1.5rem;
+            color: #16a34a;
+        }
+
+        .sucesso-titulo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+        }
+
+        .sucesso-sub { font-size: 14px; color: var(--muted); margin-bottom: 1.5rem; line-height: 1.6; }
+        .sucesso-num { font-size: 12px; color: var(--muted); margin-bottom: 1.5rem; }
+        .sucesso-num strong { color: var(--dark); }
+
+        .btn-sucesso-wp {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #25d366;
+            color: #fff;
+            border: none;
+            padding: 0.85rem 1.75rem;
+            border-radius: 3px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            margin-bottom: 0.75rem;
+        }
+
+        .btn-voltar-loja {
+            display: block;
+            font-size: 13px;
+            color: var(--muted);
+            text-decoration: none;
+            margin-top: 0.5rem;
+        }
+
+        .btn-voltar-loja:hover { color: var(--dark); }
+
+        /* EMPTY */
+        .checkout-empty {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            grid-column: 1 / -1;
+        }
+
+        .checkout-empty i { font-size: 2rem; color: var(--sand); display: block; margin-bottom: 1rem; }
+        .checkout-empty p { color: var(--muted); margin-bottom: 1.5rem; }
+
+        @media (max-width: 800px) {
+            .checkout-page { grid-template-columns: 1fr; }
+            .resumo { position: static; order: -1; }
+            .pagamento-grid { grid-template-columns: repeat(2, 1fr); }
+            .form-row { grid-template-columns: 1fr; }
+            .form-row.three { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="header" id="header">
+        <div class="header-inner">
+            <div class="header-left">
+                <a href="index.html" class="icon-btn back-btn" aria-label="Voltar">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+            </div>
+            <a href="index.html" class="logo">
+                <img src="logo.png" alt="Morena Raiz"
+                    onerror="this.style.display='none';document.querySelector('.logo-fallback').style.display='block'">
+                <span class="logo-fallback">Morena Raiz</span>
+            </a>
+            <div class="header-right"></div>
+        </div>
+    </header>
+
+    <div style="height: var(--header-h, 110px)"></div>
+
+    <div class="checkout-page" id="checkout-page">
+        <!-- conteúdo gerado pelo JS -->
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="script.js"></script>
+    <script>
+        const API      = 'https://balanced-expression-production.up.railway.app';
+        const app      = new MorenaRaiz();
+        const carrinho = app.carrinho;
+        const page     = document.getElementById('checkout-page');
+
+        const CAT_LABEL = { lancamento:'Lançamento', vestido:'Vestido', blusa:'Blusa', calca:'Calça', saias:'Saia', shorts:'Shorts', fitness:'Fitness', acessorio:'Acessório', sale:'Sale' };
+
+        // Carrinho vazio
+        if (!carrinho.length) {
+            page.innerHTML = `
+                <div class="checkout-empty">
+                    <i class="fas fa-shopping-bag"></i>
+                    <p>Seu carrinho está vazio.</p>
+                    <a href="index.html" class="btn-confirmar" style="display:inline-flex;width:auto;text-decoration:none">
+                        ← Ver catálogo
+                    </a>
+                </div>`;
+        } else {
+            renderCheckout();
+        }
+
+        function subTotal() {
+            return carrinho.reduce((s, x) => s + x.preco * x.qtd, 0);
+        }
+
+        function freteInfo() {
+            const f = app._frete;
+            const sub = subTotal();
+            if (!f || !f.tipo) return { label: 'A calcular', valor: null };
+            if (f.tipo === 'retirada') return { label: 'Retirada na loja', valor: 0 };
+            const gratis = sub >= app.FRETE_GRATIS;
+            const valor = gratis ? 0 : f.valor;
+            return { label: `${f.tipo.toUpperCase()}${gratis ? ' (Grátis)' : ''}`, valor };
+        }
+
+        function totalGeral() {
+            const sub = subTotal();
+            const f = freteInfo();
+            return sub + (f.valor || 0);
+        }
+
+        function renderCheckout() {
+            const sub = subTotal();
+            const f   = freteInfo();
+            const tot = totalGeral();
+
+            page.innerHTML = `
+            <div id="form-lado">
+                <h1 class="checkout-title">Finalizar Pedido</h1>
+
+                <div class="steps">
+                    <div class="step active"><span class="step-num">1</span> Dados</div>
+                    <div class="step"><span class="step-num">2</span> Pagamento</div>
+                    <div class="step"><span class="step-num">3</span> Confirmação</div>
+                </div>
+
+                <!-- DADOS PESSOAIS -->
+                <div class="form-section">
+                    <p class="form-section-title"><i class="fas fa-user"></i> Dados pessoais</p>
+                    <div class="form-row full" style="margin-bottom:0.85rem">
+                        <div class="field">
+                            <label>Nome completo *</label>
+                            <input type="text" id="f-nome" placeholder="Seu nome">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="field">
+                            <label>WhatsApp *</label>
+                            <input type="tel" id="f-tel" placeholder="(48) 99999-9999" oninput="maskTel(this)">
+                        </div>
+                        <div class="field">
+                            <label>Email</label>
+                            <input type="email" id="f-email" placeholder="seu@email.com">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ENDEREÇO -->
+                <div class="form-section">
+                    <p class="form-section-title"><i class="fas fa-map-marker-alt"></i> Endereço de entrega</p>
+                    <div class="form-row" style="margin-bottom:0.85rem">
+                        <div class="field">
+                            <label>CEP *</label>
+                            <input type="text" id="f-cep" placeholder="00000-000" maxlength="9" oninput="maskCep(this)" onblur="buscaCep()">
+                        </div>
+                        <div class="field">
+                            <label>Cidade / Estado</label>
+                            <input type="text" id="f-cidade" placeholder="Preenchido automaticamente" readonly>
+                        </div>
+                    </div>
+                    <div class="form-row full" style="margin-bottom:0.85rem">
+                        <div class="field">
+                            <label>Rua *</label>
+                            <input type="text" id="f-rua" placeholder="Nome da rua">
+                        </div>
+                    </div>
+                    <div class="form-row three">
+                        <div class="field">
+                            <label>Número *</label>
+                            <input type="text" id="f-num" placeholder="123">
+                        </div>
+                        <div class="field" style="grid-column: span 2">
+                            <label>Complemento</label>
+                            <input type="text" id="f-comp" placeholder="Apto, bloco...">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PAGAMENTO -->
+                <div class="form-section">
+                    <p class="form-section-title"><i class="fas fa-credit-card"></i> Forma de pagamento</p>
+                    <div class="pagamento-grid">
+                        <button class="pag-btn" data-pag="pix" onclick="selPag(this)">
+                            <i class="fas fa-qrcode"></i>
+                            <span>PIX</span>
+                        </button>
+                        <button class="pag-btn" data-pag="cartao" onclick="selPag(this)">
+                            <i class="fas fa-credit-card"></i>
+                            <span>Cartão</span>
+                        </button>
+                        <button class="pag-btn" data-pag="dinheiro" onclick="selPag(this)">
+                            <i class="fas fa-money-bill"></i>
+                            <span>Dinheiro</span>
+                        </button>
+                        <button class="pag-btn" data-pag="boleto" onclick="selPag(this)">
+                            <i class="fas fa-barcode"></i>
+                            <span>Boleto</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- PRESENTE -->
+                <div class="form-section">
+                    <p class="form-section-title"><i class="fas fa-gift"></i> É um presente?</p>
+                    <div class="presente-toggle" id="presente-toggle" onclick="togglePresente()">
+                        <i class="fas fa-gift"></i>
+                        <span>Sim, quero enviar como presente</span>
+                        <i class="fas fa-chevron-down" style="margin-left:auto;font-size:0.7rem;color:var(--muted)"></i>
+                    </div>
+                    <div class="presente-fields" id="presente-fields">
+                        <div class="form-row full" style="margin-top:0">
+                            <div class="field">
+                                <label>Para quem é o presente?</label>
+                                <input type="text" id="f-presente-para" placeholder="Nome da pessoa">
+                            </div>
+                        </div>
+                        <div class="form-row full">
+                            <div class="field">
+                                <label>Mensagem do cartão</label>
+                                <textarea id="f-presente-msg" rows="3" placeholder="Escreva uma mensagem especial..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OBSERVAÇÃO -->
+                <div class="form-section">
+                    <p class="form-section-title"><i class="fas fa-comment"></i> Observações</p>
+                    <div class="field">
+                        <textarea id="f-obs" rows="3" placeholder="Alguma observação sobre o pedido? Ex: tamanho específico, cor..."></textarea>
+                    </div>
+                </div>
+
+                <button class="btn-confirmar" id="btn-confirmar" onclick="confirmarPedido()">
+                    <i class="fas fa-check"></i> Confirmar Pedido
+                </button>
+
+                <!-- SUCESSO -->
+                <div class="pedido-sucesso" id="pedido-sucesso">
+                    <div class="sucesso-icon"><i class="fas fa-check"></i></div>
+                    <h2 class="sucesso-titulo">Pedido confirmado!</h2>
+                    <p class="sucesso-sub">Obrigada pela sua compra! Em breve entraremos em contato pelo WhatsApp para confirmar os detalhes.</p>
+                    <p class="sucesso-num">Número do pedido: <strong id="sucesso-num">#000</strong></p>
+                    <a id="btn-wp-confirmacao" class="btn-sucesso-wp" href="#" target="_blank">
+                        <i class="fab fa-whatsapp"></i> Falar com a loja
+                    </a>
+                    <a href="index.html" class="btn-voltar-loja">← Continuar comprando</a>
+                </div>
+            </div>
+
+            <!-- RESUMO -->
+            <div class="resumo">
+                <div class="resumo-card">
+                    <div class="resumo-header">
+                        <h3>Resumo do pedido (${carrinho.reduce((s,x)=>s+x.qtd,0)} ${carrinho.reduce((s,x)=>s+x.qtd,0) === 1 ? 'peça' : 'peças'})</h3>
+                    </div>
+                    <div class="resumo-itens">
+                        ${carrinho.map(item => `
+                            <div class="resumo-item">
+                                <img class="resumo-item-img" src="${item.img||''}" alt="${item.nome}"
+                                    onerror="this.style.background='var(--cream)'">
+                                <div class="resumo-item-info">
+                                    <p class="resumo-item-nome">${item.nome}</p>
+                                    <p class="resumo-item-cat">${CAT_LABEL[item.cat]||''}</p>
+                                    <p class="resumo-item-qtd">Qtd: ${item.qtd}</p>
+                                    <p class="resumo-item-preco">R$ ${(item.preco * item.qtd).toFixed(2).replace('.',',')}</p>
+                                </div>
+                            </div>`).join('')}
+                    </div>
+                    <div class="resumo-totais">
+                        <div class="resumo-linha">
+                            <span>Subtotal</span>
+                            <span>R$ ${sub.toFixed(2).replace('.',',')}</span>
+                        </div>
+                        <div class="resumo-linha">
+                            <span>Frete</span>
+                            <span>${f.valor === 0 ? '<span class="resumo-frete-gratis">Grátis</span>' : f.valor === null ? '—' : `R$ ${f.valor.toFixed(2).replace('.',',')}`}</span>
+                        </div>
+                        <div class="resumo-linha total">
+                            <span>Total</span>
+                            <span>R$ ${tot.toFixed(2).replace('.',',')}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:1rem;line-height:1.6">
+                    <i class="fas fa-lock" style="margin-right:0.3rem"></i>
+                    Seus dados estão protegidos.<br>
+                    Pagamento combinado após confirmação.
+                </p>
+            </div>`;
+        }
+
+        // MÁSCARAS
+        function maskTel(input) {
+            let v = input.value.replace(/\D/g,'');
+            if (v.length > 11) v = v.slice(0,11);
+            if (v.length > 6) v = `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`;
+            else if (v.length > 2) v = `(${v.slice(0,2)}) ${v.slice(2)}`;
+            else if (v.length > 0) v = `(${v}`;
+            input.value = v;
+        }
+
+        function maskCep(input) {
+            let v = input.value.replace(/\D/g,'');
+            if (v.length > 5) v = v.slice(0,5) + '-' + v.slice(5,8);
+            input.value = v;
+        }
+
+        async function buscaCep() {
+            const cep = document.getElementById('f-cep').value.replace(/\D/g,'');
+            if (cep.length !== 8) return;
+            try {
+                const data = await fetch(`https://viacep.com.br/ws/${cep}/json/`).then(r=>r.json());
+                if (!data.erro) {
+                    document.getElementById('f-rua').value    = data.logradouro || '';
+                    document.getElementById('f-cidade').value = `${data.localidade} - ${data.uf}`;
+                }
+            } catch(_) {}
+        }
+
+        // PAGAMENTO
+        let pagSel = '';
+        function selPag(btn) {
+            document.querySelectorAll('.pag-btn').forEach(b => b.classList.remove('sel'));
+            btn.classList.add('sel');
+            pagSel = btn.dataset.pag;
+        }
+
+        // PRESENTE
+        let ehPresente = false;
+        function togglePresente() {
+            ehPresente = !ehPresente;
+            document.getElementById('presente-toggle').classList.toggle('ativo', ehPresente);
+            document.getElementById('presente-fields').classList.toggle('show', ehPresente);
+        }
+
+        // CONFIRMAR PEDIDO
+        async function confirmarPedido() {
+            const nome = document.getElementById('f-nome').value.trim();
+            const tel  = document.getElementById('f-tel').value.trim();
+            const cep  = document.getElementById('f-cep').value.trim();
+            const rua  = document.getElementById('f-rua').value.trim();
+            const num  = document.getElementById('f-num').value.trim();
+
+            // Validação
+            let valido = true;
+            ['f-nome','f-tel','f-cep','f-rua','f-num'].forEach(id => {
+                const el = document.getElementById(id);
+                if (!el.value.trim()) { el.classList.add('erro'); valido = false; }
+                else el.classList.remove('erro');
+            });
+
+            if (!pagSel) {
+                toast('Selecione uma forma de pagamento!');
+                return;
+            }
+
+            if (!valido) { toast('Preencha os campos obrigatórios!'); return; }
+
+            const btn = document.getElementById('btn-confirmar');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Enviando...';
+
+            const f   = freteInfo();
+            const sub = subTotal();
+            const tot = totalGeral();
+
+            const cidade = document.getElementById('f-cidade').value;
+            const comp   = document.getElementById('f-comp').value.trim();
+            const obs    = document.getElementById('f-obs').value.trim();
+
+            let obsCompleta = obs;
+            if (ehPresente) {
+                const para = document.getElementById('f-presente-para').value.trim();
+                const msg  = document.getElementById('f-presente-msg').value.trim();
+                if (para || msg) obsCompleta += `\n🎁 PRESENTE para: ${para}${msg ? `\nMensagem: "${msg}"` : ''}`;
+            }
+
+            const body = {
+                cliente_nome:     nome,
+                cliente_email:    document.getElementById('f-email').value.trim(),
+                cliente_telefone: tel,
+                cliente_cep:      cep,
+                cliente_endereco: `${rua}, ${num}${comp ? ` - ${comp}` : ''} — ${cidade}`,
+                itens:            carrinho,
+                subtotal:         sub,
+                frete_tipo:       f.label,
+                frete_valor:      f.valor || 0,
+                total:            tot,
+                pagamento:        pagSel,
+                observacao:       obsCompleta,
+            };
+
+            try {
+                const res = await fetch(`${API}/pedidos`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                }).then(r => r.json());
+
+                // Limpa carrinho
+                app.carrinho = [];
+                app._saveCarrinho();
+
+                // Mostra sucesso
+                btn.style.display = 'none';
+                document.getElementById('pedido-sucesso').style.display = 'block';
+                document.getElementById('sucesso-num').textContent = `#${String(res.id).padStart(4,'0')}`;
+
+                // Link WhatsApp de confirmação
+                const wpMsg = `🌿 Olá! Acabei de fazer um pedido no site!\n\n*Pedido #${String(res.id).padStart(4,'0')}*\n👤 ${nome}\n📱 ${tel}\n💳 Pagamento: ${pagSel}\n💰 Total: R$ ${tot.toFixed(2).replace('.',',')}\n\nAguardo a confirmação!`;
+                document.getElementById('btn-wp-confirmacao').href = `https://wa.me/55${app.TELEFONE}?text=${encodeURIComponent(wpMsg)}`;
+
+                // Atualiza steps
+                document.querySelectorAll('.step').forEach((s, i) => {
+                    s.className = 'step done';
+                    s.querySelector('.step-num').innerHTML = '<i class="fas fa-check" style="font-size:8px"></i>';
+                });
+
+            } catch(e) {
+                toast('Erro ao enviar pedido. Tente novamente.');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check"></i> Confirmar Pedido';
+            }
+        }
+
+        function toast(msg) {
+            const el = document.getElementById('toast');
+            el.textContent = msg;
+            el.classList.add('show');
+            clearTimeout(window._t);
+            window._t = setTimeout(() => el.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>

@@ -488,41 +488,11 @@ class MorenaRaiz {
         });
     }
 
-    // ─────────── WHATSAPP ───────────
-    _sendWhatsApp() {
-        if (!this.carrinho.length) { this.toast('Adicione produtos primeiro!'); return; }
-
-        const sub = this._subTotal();
-        const freteGratis = sub >= this.FRETE_GRATIS;
-        const frete = this._frete;
-
-        let msg = '🌿 *Olá! Gostaria de fazer um pedido:*\n\n';
-
-        this.carrinho.forEach(x => {
-            msg += `▪ *${x.nome}*\n  Qtd: ${x.qtd}  ·  R$ ${(x.preco * x.qtd).toFixed(2).replace('.',',')}\n\n`;
-        });
-
-        msg += `━━━━━━━━━━━━━━━\n💰 *Subtotal: R$ ${sub.toFixed(2).replace('.',',')}*\n`;
-
-        if (frete) {
-            if (frete.tipo === 'retirada') {
-                msg += `🏠 *Entrega: Retirada na loja (Tubarão-SC)*\n`;
-                msg += `💳 *Total: R$ ${sub.toFixed(2).replace('.',',')}*`;
-            } else if (frete.tipo) {
-                const valorFrete = freteGratis ? 0 : frete.valor;
-                const total = sub + valorFrete;
-                msg += `📦 *Frete ${frete.tipo.toUpperCase()}${freteGratis ? ' (GRÁTIS)' : `: R$ ${valorFrete.toFixed(2).replace('.',',')}`}*`;
-                if (frete.cidade) msg += ` — ${frete.cidade}/${frete.uf}`;
-                msg += `\n⏱ *Prazo: ${frete.prazo} dias úteis*\n`;
-                msg += `💳 *Total: R$ ${total.toFixed(2).replace('.',',')}*`;
-            }
-        } else {
-            msg += `📦 *Frete: a calcular*\n`;
-            msg += `💳 *Total dos produtos: R$ ${sub.toFixed(2).replace('.',',')}*`;
-        }
-
-        window.open(`https://wa.me/55${this.TELEFONE}?text=${encodeURIComponent(msg)}`, '_blank');
-    }
+   // ─────────── WHATSAPP ───────────
+_sendWhatsApp() {
+    if (!this.carrinho.length) { this.toast('Adicione produtos primeiro!'); return; }
+    window.location.href = 'checkout.html';
+}
 
     // ─────────── TOAST ───────────
     toast(msg) {
