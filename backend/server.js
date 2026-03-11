@@ -1,3 +1,4 @@
+this.API = 'https://balanced-expression-production.up.railway.app';
 require('dotenv').config();
 const express = require('express');
 const mysql = require('mysql2');
