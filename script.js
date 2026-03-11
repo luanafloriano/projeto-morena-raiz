@@ -1,19 +1,20 @@
 // =============================================
-// MORENA RAIZ — script.js v4
-// Sistema de frete integrado ao carrinho
+// MORENA RAIZ — script.js v5
+// Sistema de frete + controle de estoque
 // =============================================
 
 class MorenaRaiz {
 
     constructor() {
-        this.TELEFONE    = '48996727239'; // ← seu número (só números)
-        this.CEP_ORIGEM  = '88702060';    // ← CEP da loja (Tubarão-SC)
-        this.FRETE_GRATIS = 300;          // ← valor mínimo para frete grátis
+        this.API          = 'https://balanced-expression-production.up.railway.app';
+        this.TELEFONE     = '48996727239';
+        this.CEP_ORIGEM   = '88702060';
+        this.FRETE_GRATIS = 300;
 
         this.produtos  = this._loadProdutos();
         this.carrinho  = this._loadCarrinho();
         this._filters  = { cat: '', size: '', sort: '' };
-        this._frete    = null; // { tipo, valor, prazo, cep }
+        this._frete    = null;
 
         this._bindCart();
         this._updateDot();
@@ -25,18 +26,7 @@ class MorenaRaiz {
             const s = localStorage.getItem('mr_produtos');
             if (s) return JSON.parse(s);
         } catch(_) {}
-
-        // produtos de exemplo — substitua pelos seus
-        return [
-            { id:1, nome:'Vestido Linho Botões',      preco:219.90, precoDe:null,   cat:'vestido',   tams:'P, M, G',          cores:'Off White, Bege',          material:'Linho',    desc:'Vestido midi em linho com detalhes em botões forrados. Caimento elegante para o dia a dia.', img:'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=700&h=930&fit=crop', novo:true  },
-            { id:2, nome:'Blusa Ampla Viscose',        preco:119.90, precoDe:null,   cat:'blusa',     tams:'P, M, G, GG',      cores:'Preto, Branco, Terracota', material:'Viscose',  desc:'Blusa ampla com manga longa e caimento fluido. Perfeita para looks casuais e formais.', img:'https://images.unsplash.com/photo-1586790170083-2f9ceadc732d?w=700&h=930&fit=crop', novo:false },
-            { id:3, nome:'Calça Wide Leg Crepe',       preco:189.90, precoDe:239.90, cat:'calca',     tams:'P, M, G, GG, PLUS',cores:'Preto, Caramelo',          material:'Crepe',    desc:'Calça wide leg de crepe com cintura alta e caimento impecável.',                        img:'https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=700&h=930&fit=crop', novo:false },
-            { id:4, nome:'Saia Midi Franzida',         preco:149.90, precoDe:null,   cat:'saias',     tams:'P, M, G',          cores:'Verde, Rosa Seco, Azul',   material:'Algodão',  desc:'Saia midi com franzido na cintura e detalhe em camadas. Romântica e versátil.',         img:'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=700&h=930&fit=crop', novo:true  },
-            { id:5, nome:'Conjunto Cropped + Saia',    preco:289.90, precoDe:349.90, cat:'sale',      tams:'P, M, G',          cores:'Lilás, Branco',            material:'Malha',    desc:'Conjunto cropped com decote quadrado e saia midi. Ideal para ocasiões especiais.',      img:'https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=700&h=930&fit=crop', novo:false },
-            { id:6, nome:'Top Ombro a Ombro',          preco:89.90,  precoDe:null,   cat:'blusa',     tams:'P, M, G',          cores:'Branco, Preto, Vinho',     material:'Ribana',   desc:'Top ombro a ombro em ribana com alça regulável. Básico que combina com tudo.',         img:'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=700&h=930&fit=crop', novo:false },
-            { id:7, nome:'Vestido Floral Midi',        preco:259.90, precoDe:null,   cat:'vestido',   tams:'P, M, G, GG',      cores:'Azul Floral, Rosa Floral', material:'Viscose',  desc:'Vestido midi com estampa floral exclusiva. Caimento levinho e feminino.',              img:'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=700&h=930&fit=crop', novo:true  },
-            { id:8, nome:'Shorts Alfaiataria',         preco:139.90, precoDe:179.90, cat:'sale',      tams:'P, M, G',          cores:'Bege, Preto',              material:'Alfaiataria', desc:'Shorts de alfaiataria com pregas frontais. Elegante e confortável.',               img:'https://images.unsplash.com/photo-1591369822096-ffd140ec948f?w=700&h=930&fit=crop', novo:false },
-        ];
+        return [];
     }
 
     _loadCarrinho() {
@@ -81,7 +71,7 @@ class MorenaRaiz {
         }
 
         el.innerHTML = list.map((p, i) => {
-            const tams  = p.tams ? p.tams.split(',').map(t=>t.trim()) : [];
+            const tams   = p.tams ? p.tams.split(',').map(t=>t.trim()) : [];
             const isSale = p.precoDe && p.precoDe > p.preco;
             const badge  = isSale
                 ? `<span class="prod-badge sale">Sale</span>`
@@ -114,51 +104,53 @@ class MorenaRaiz {
     }
 
     // ─────────── CARRINHO ───────────
-   addToCart(id, tam='', cor='') {
-    const p = this.produtos.find(x => x.id === id);
-    if (!p) return;
-    // Chave única por produto+tamanho+cor
-    const key = `${id}_${tam}_${cor}`;
-    const ex = this.carrinho.find(x => x._key === key);
-    if (ex) ex.qtd++;
-    else this.carrinho.push({ ...p, qtd: 1, tam, cor, _key: key });
-    this._saveCarrinho();
-    this._updateDot();
-    this.toast(`${p.nome} adicionado!`);
-    this._frete = null;
-}
-  removeFromCart(key) {
-    this.carrinho = this.carrinho.filter(x => x._key !== key);
-    this._saveCarrinho();
-    this._updateDot();
-    this._frete = null;
-    this._renderCart();
-}
-
-async changeQty(key, d) {
-    const item = this.carrinho.find(x => x._key === key);
-    if (!item) return;
-
-    // Se está aumentando, verifica estoque
-    if (d > 0 && item.tam && item.cor) {
-        try {
-            const res = await fetch(`${this.API}/produtos/${item.id}/estoque`).then(r => r.json());
-            const sku = `${item.tam}_${item.cor}`;
-            const disponivel = res.estoque?.[sku] || 0;
-            if (item.qtd + d > disponivel) {
-                this.toast(`Só temos ${disponivel} unidade${disponivel !== 1 ? 's' : ''} disponível!`);
-                return;
-            }
-        } catch(_) {}
+    addToCart(id, tam='', cor='') {
+        const p = this.produtos.find(x => x.id === id);
+        if (!p) return;
+        const key = `${id}_${tam}_${cor}`;
+        const ex  = this.carrinho.find(x => x._key === key);
+        if (ex) ex.qtd++;
+        else    this.carrinho.push({ ...p, qtd: 1, tam, cor, _key: key });
+        this._saveCarrinho();
+        this._updateDot();
+        this.toast(`${p.nome} adicionado!`);
+        this._frete = null;
     }
 
-    item.qtd += d;
-    if (item.qtd <= 0) { this.removeFromCart(key); return; }
-    this._saveCarrinho();
-    this._updateDot();
-    this._frete = null;
-    this._renderCart();
-}
+    removeFromCart(key) {
+        this.carrinho = this.carrinho.filter(x => x._key !== key);
+        this._saveCarrinho();
+        this._updateDot();
+        this._frete = null;
+        this._renderCart();
+    }
+
+    async changeQty(key, d) {
+        const item = this.carrinho.find(x => x._key === key);
+        if (!item) return;
+
+        // Se está aumentando, verifica estoque no servidor
+        if (d > 0 && item.tam && item.cor) {
+            try {
+                const res = await fetch(`${this.API}/produtos/${item.id}/estoque`).then(r => r.json());
+                const sku = `${item.tam}_${item.cor}`;
+                const disponivel = (res.estoque && res.estoque[sku]) ? res.estoque[sku] : 0;
+                if (item.qtd + d > disponivel) {
+                    this.toast(`Só temos ${disponivel} unidade${disponivel !== 1 ? 's' : ''} disponível!`);
+                    return;
+                }
+            } catch(_) {
+                // falha silenciosa — permite continuar
+            }
+        }
+
+        item.qtd += d;
+        if (item.qtd <= 0) { this.removeFromCart(key); return; }
+        this._saveCarrinho();
+        this._updateDot();
+        this._frete = null;
+        this._renderCart();
+    }
 
     _subTotal() {
         return this.carrinho.reduce((s,x) => s + x.preco * x.qtd, 0);
@@ -193,10 +185,10 @@ async changeQty(key, d) {
                     <p class="cart-item-cat">${this.catLabel(item.cat)}</p>
                     <p class="cart-item-preco">R$ ${(item.preco * item.qtd).toFixed(2).replace('.', ',')}</p>
                     <div class="cart-qty">
-    <button onclick="app.changeQty('${item._key}',-1)"><i class="fas fa-minus"></i></button>
-    <span>${item.qtd}</span>
-    <button onclick="app.changeQty('${item._key}',1)"><i class="fas fa-plus"></i></button>
-</div>
+                        <button onclick="app.changeQty('${item._key}',-1)"><i class="fas fa-minus"></i></button>
+                        <span>${item.qtd}</span>
+                        <button onclick="app.changeQty('${item._key}',1)"><i class="fas fa-plus"></i></button>
+                    </div>
                 </div>
                 <button class="cart-item-del" onclick="app.removeFromCart('${item._key}')"><i class="fas fa-trash"></i></button>
             </div>`).join('');
@@ -210,7 +202,6 @@ async changeQty(key, d) {
         const foot = document.getElementById('cart-foot');
         if (!foot) return;
 
-        // Remove seção existente para recriar
         const old = document.getElementById('frete-section');
         if (old) old.remove();
 
@@ -229,8 +220,9 @@ async changeQty(key, d) {
                 </div>
                 <div style="display:flex;gap:0.5rem">
                     <input id="cep-input" type="text" maxlength="9" placeholder="Digite seu CEP para ver o prazo"
-                        style="flex:1;border:1px solid var(--border);border-radius:3px;padding:0.55rem 0.75rem;font-size:13px;font-family:inherit;background:var(--white)">
-                    <button onclick="app.calcularFrete()" 
+                        style="flex:1;border:1px solid var(--border);border-radius:3px;padding:0.55rem 0.75rem;font-size:13px;font-family:inherit;background:var(--white)"
+                        oninput="app._maskCep(this)">
+                    <button onclick="app.calcularFrete()"
                         style="background:var(--dark);color:#fff;border:none;padding:0.55rem 1rem;border-radius:3px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit">
                         Ver prazo
                     </button>
@@ -268,16 +260,13 @@ async changeQty(key, d) {
                 </div>`;
         }
 
-        // Insere antes do rodapé (botões)
         foot.insertBefore(section, foot.firstChild);
 
-        // Se já tem frete calculado, mostra resultado
         if (this._frete) this._mostrarResultadoFrete(this._frete);
     }
 
     _renderTotais() {
         const tot = document.getElementById('cart-total');
-        const freteEl = document.getElementById('cart-frete-val');
         if (!tot) return;
 
         const sub = this._subTotal();
@@ -285,8 +274,7 @@ async changeQty(key, d) {
         const valorFrete = freteGratis ? 0 : (this._frete?.tipo !== 'retirada' ? (this._frete?.valor || null) : 0);
 
         if (valorFrete !== null) {
-            const total = sub + valorFrete;
-            tot.textContent = total.toFixed(2).replace('.', ',');
+            tot.textContent = (sub + valorFrete).toFixed(2).replace('.', ',');
         } else {
             tot.textContent = sub.toFixed(2).replace('.', ',');
         }
@@ -313,15 +301,11 @@ async changeQty(key, d) {
         resultado.innerHTML = `<p style="font-size:12px;color:var(--muted)"><i class="fas fa-circle-notch fa-spin"></i> Calculando...</p>`;
 
         try {
-            // 1. Busca dados do CEP
             const viaCep = await fetch(`https://viacep.com.br/ws/${cep}/json/`).then(r=>r.json());
             if (viaCep.erro) throw new Error('CEP não encontrado');
 
-            // 2. Calcula peso total estimado (300g por peça)
-            const qtdTotal = this.carrinho.reduce((s,x) => s + x.qtd, 0);
+            const qtdTotal   = this.carrinho.reduce((s,x) => s + x.qtd, 0);
             const pesoGramas = qtdTotal * 300;
-
-            // 3. Calcula frete pela tabela dos Correios
             const { pac, sedex } = this._tabelaCorreios(viaCep.uf, pesoGramas);
 
             this._frete = { cep, cidade: viaCep.localidade, uf: viaCep.uf, tipo: null, valor: null };
@@ -343,13 +327,14 @@ async changeQty(key, d) {
             <p style="font-size:11px;color:var(--muted);margin-bottom:0.5rem">
                 <i class="fas fa-map-marker-alt"></i> ${viaCep.localidade} - ${viaCep.uf}
             </p>
-            ${freteGratis ? `
             <div style="display:flex;flex-direction:column;gap:0.4rem">
-                <label style="display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0.75rem;border:2px solid #16a34a;border-radius:4px;cursor:pointer;background:#f0fdf4" onclick="app.selecionarFrete('pac',0,${pac.prazo})">
+                <label style="display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0.75rem;border:${freteGratis ? '2px solid #16a34a' : '1px solid var(--border)'};background:${freteGratis ? '#f0fdf4' : ''};border-radius:4px;cursor:pointer" onclick="app.selecionarFrete('pac',${freteGratis ? 0 : pac.valor},${pac.prazo})">
                     <input type="radio" name="frete-op" style="accent-color:var(--dark)">
                     <div style="flex:1">
                         <p style="font-size:12px;font-weight:600">PAC</p>
-                        <p style="font-size:11px;color:#15803d">🎉 Grátis · ${pac.prazo} dias úteis</p>
+                        <p style="font-size:11px;color:${freteGratis ? '#15803d' : 'var(--muted)'}">
+                            ${freteGratis ? '🎉 Grátis' : `R$ ${pac.valor.toFixed(2).replace('.',',')}`} · ${pac.prazo} dias úteis
+                        </p>
                     </div>
                 </label>
                 <label style="display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0.75rem;border:1px solid var(--border);border-radius:4px;cursor:pointer" onclick="app.selecionarFrete('sedex',${sedex.valor},${sedex.prazo})">
@@ -359,31 +344,14 @@ async changeQty(key, d) {
                         <p style="font-size:11px;color:var(--muted)">R$ ${sedex.valor.toFixed(2).replace('.',',')} · ${sedex.prazo} dias úteis</p>
                     </div>
                 </label>
-            </div>` : `
-            <div style="display:flex;flex-direction:column;gap:0.4rem">
-                <label style="display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0.75rem;border:1px solid var(--border);border-radius:4px;cursor:pointer" onclick="app.selecionarFrete('pac',${pac.valor},${pac.prazo})">
-                    <input type="radio" name="frete-op" style="accent-color:var(--dark)">
-                    <div style="flex:1">
-                        <p style="font-size:12px;font-weight:600">PAC</p>
-                        <p style="font-size:11px;color:var(--muted)">R$ ${pac.valor.toFixed(2).replace('.',',')} · ${pac.prazo} dias úteis</p>
-                    </div>
-                </label>
-                <label style="display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0.75rem;border:1px solid var(--border);border-radius:4px;cursor:pointer" onclick="app.selecionarFrete('sedex',${sedex.valor},${sedex.prazo})">
-                    <input type="radio" name="frete-op" style="accent-color:var(--dark)">
-                    <div style="flex:1">
-                        <p style="font-size:12px;font-weight:600">SEDEX</p>
-                        <p style="font-size:11px;color:var(--muted)">R$ ${sedex.valor.toFixed(2).replace('.',',')} · ${sedex.prazo} dias úteis</p>
-                    </div>
-                </label>
-            </div>`}`;
+            </div>`;
     }
 
     selecionarFrete(tipo, valor, prazo) {
         this._frete = { ...this._frete, tipo, valor, prazo };
         this._renderTotais();
 
-        // Destaca a opção selecionada
-        document.querySelectorAll('[name="frete-op"]').forEach((r, i) => {
+        document.querySelectorAll('[name="frete-op"]').forEach(r => {
             const label = r.closest('label');
             if (r.checked) {
                 label.style.border = '2px solid var(--dark)';
@@ -394,9 +362,8 @@ async changeQty(key, d) {
             }
         });
 
-        const nomes = { pac: 'PAC', sedex: 'SEDEX' };
         const valorStr = valor === 0 ? 'Grátis' : `R$ ${valor.toFixed(2).replace('.',',')}`;
-        this.toast(`${nomes[tipo]} selecionado — ${valorStr}`);
+        this.toast(`${tipo.toUpperCase()} selecionado — ${valorStr}`);
     }
 
     selecionarRetirada() {
@@ -435,12 +402,9 @@ async changeQty(key, d) {
     }
 
     // ─────────── TABELA DOS CORREIOS ───────────
-    // Valores aproximados PAC/SEDEX por região, peso até 500g
-    // Baseado na tabela vigente dos Correios (2024-2025)
     _tabelaCorreios(uf, pesoGramas) {
-        const peso = Math.ceil(pesoGramas / 100) * 100; // arredonda p/ 100g
+        const peso = Math.ceil(pesoGramas / 100) * 100;
 
-        // Regiões por UF
         const regioes = {
             SC: 'sul', RS: 'sul', PR: 'sul',
             SP: 'sudeste', RJ: 'sudeste', MG: 'sudeste', ES: 'sudeste',
@@ -452,19 +416,15 @@ async changeQty(key, d) {
 
         const regiao = regioes[uf] || 'sudeste';
 
-        // Tabela: [pac_valor, pac_prazo, sedex_valor, sedex_prazo]
-        // Valores em R$ para pacote de moda leve (até 500g, 16x11x2cm)
         const tabela = {
-            sul:        { pac: [15.90,  5], sedex: [28.90,  2] },
-            sudeste:    { pac: [17.90,  7], sedex: [32.90,  2] },
-            centroOeste:{ pac: [20.90,  8], sedex: [37.90,  3] },
-            nordeste:   { pac: [23.90, 10], sedex: [44.90,  4] },
-            norte:      { pac: [27.90, 14], sedex: [54.90,  6] },
+            sul:         { pac: [15.90,  5], sedex: [28.90,  2] },
+            sudeste:     { pac: [17.90,  7], sedex: [32.90,  2] },
+            centroOeste: { pac: [20.90,  8], sedex: [37.90,  3] },
+            nordeste:    { pac: [23.90, 10], sedex: [44.90,  4] },
+            norte:       { pac: [27.90, 14], sedex: [54.90,  6] },
         };
 
-        // Adicional por peso extra (acima de 300g)
         const adicionalPeso = peso > 300 ? Math.ceil((peso - 300) / 100) * 1.50 : 0;
-
         const t = tabela[regiao];
         return {
             pac:   { valor: t.pac[0]   + adicionalPeso, prazo: t.pac[1]   },
@@ -503,11 +463,11 @@ async changeQty(key, d) {
         });
     }
 
-   // ─────────── WHATSAPP ───────────
-_sendWhatsApp() {
-    if (!this.carrinho.length) { this.toast('Adicione produtos primeiro!'); return; }
-    window.location.href = 'checkout.html';
-}
+    // ─────────── WHATSAPP ───────────
+    _sendWhatsApp() {
+        if (!this.carrinho.length) { this.toast('Adicione produtos primeiro!'); return; }
+        window.location.href = 'checkout.html';
+    }
 
     // ─────────── TOAST ───────────
     toast(msg) {
