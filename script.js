@@ -27,7 +27,16 @@ class MorenaRaiz {
         } catch(_) {}
 
         // produtos de exemplo — substitua pelos seus
-        
+        return [
+            { id:1, nome:'Vestido Linho Botões',      preco:219.90, precoDe:null,   cat:'vestido',   tams:'P, M, G',          cores:'Off White, Bege',          material:'Linho',    desc:'Vestido midi em linho com detalhes em botões forrados. Caimento elegante para o dia a dia.', img:'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=700&h=930&fit=crop', novo:true  },
+            { id:2, nome:'Blusa Ampla Viscose',        preco:119.90, precoDe:null,   cat:'blusa',     tams:'P, M, G, GG',      cores:'Preto, Branco, Terracota', material:'Viscose',  desc:'Blusa ampla com manga longa e caimento fluido. Perfeita para looks casuais e formais.', img:'https://images.unsplash.com/photo-1586790170083-2f9ceadc732d?w=700&h=930&fit=crop', novo:false },
+            { id:3, nome:'Calça Wide Leg Crepe',       preco:189.90, precoDe:239.90, cat:'calca',     tams:'P, M, G, GG, PLUS',cores:'Preto, Caramelo',          material:'Crepe',    desc:'Calça wide leg de crepe com cintura alta e caimento impecável.',                        img:'https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=700&h=930&fit=crop', novo:false },
+            { id:4, nome:'Saia Midi Franzida',         preco:149.90, precoDe:null,   cat:'saias',     tams:'P, M, G',          cores:'Verde, Rosa Seco, Azul',   material:'Algodão',  desc:'Saia midi com franzido na cintura e detalhe em camadas. Romântica e versátil.',         img:'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=700&h=930&fit=crop', novo:true  },
+            { id:5, nome:'Conjunto Cropped + Saia',    preco:289.90, precoDe:349.90, cat:'sale',      tams:'P, M, G',          cores:'Lilás, Branco',            material:'Malha',    desc:'Conjunto cropped com decote quadrado e saia midi. Ideal para ocasiões especiais.',      img:'https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=700&h=930&fit=crop', novo:false },
+            { id:6, nome:'Top Ombro a Ombro',          preco:89.90,  precoDe:null,   cat:'blusa',     tams:'P, M, G',          cores:'Branco, Preto, Vinho',     material:'Ribana',   desc:'Top ombro a ombro em ribana com alça regulável. Básico que combina com tudo.',         img:'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=700&h=930&fit=crop', novo:false },
+            { id:7, nome:'Vestido Floral Midi',        preco:259.90, precoDe:null,   cat:'vestido',   tams:'P, M, G, GG',      cores:'Azul Floral, Rosa Floral', material:'Viscose',  desc:'Vestido midi com estampa floral exclusiva. Caimento levinho e feminino.',              img:'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=700&h=930&fit=crop', novo:true  },
+            { id:8, nome:'Shorts Alfaiataria',         preco:139.90, precoDe:179.90, cat:'sale',      tams:'P, M, G',          cores:'Bege, Preto',              material:'Alfaiataria', desc:'Shorts de alfaiataria com pregas frontais. Elegante e confortável.',               img:'https://images.unsplash.com/photo-1591369822096-ffd140ec948f?w=700&h=930&fit=crop', novo:false },
+        ];
     }
 
     _loadCarrinho() {
