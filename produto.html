@@ -88,14 +88,15 @@
 
                 // Normaliza campos
                 const produto = {
-                    ...p,
-                    preco:   parseFloat(p.preco),
-                    precoDe: null,
-                    cat:     p.categoria,
-                    tams:    p.tamanhos,
-                    img:     p.imagem,
-                    desc:    p.descricao,
-                };
+    ...p,
+    preco:   parseFloat(p.preco),
+    precoDe: null,
+    cat:     p.categoria,
+    tams:    p.tamanhos,
+    img:     p.imagem,
+    desc:    p.descricao,
+    estoque: typeof p.estoque === 'string' ? JSON.parse(p.estoque || '{}') : (p.estoque || {}),
+};
 
                 // Carrega todos para "você também pode gostar"
                 const todos = await fetch(`${API}/produtos`).then(r => r.json());
@@ -186,35 +187,90 @@ ${produto.cores ? `
                     </div>
                 </div>`;
 
-        // Tamanhos
-let tamSel = tams[0] || '';
+       // Tamanhos — desabilita sem estoque
+let tamSel = '';
 if (tams.length) {
+    // Encontra primeiro tamanho disponível
+    for (const t of tams) {
+        const temEstoque = cores.length
+            ? cores.some(c => (produto.estoque[`${t}_${c.trim()}`] || 0) > 0)
+            : true;
+        if (temEstoque) { tamSel = t; break; }
+    }
+
     document.querySelectorAll('.tam-btn:not(.cor-btn)').forEach(btn => {
+        const t = btn.dataset.tam;
+        const temEstoque = cores.length
+            ? cores.some(c => (produto.estoque[`${t}_${c.trim()}`] || 0) > 0)
+            : true;
+        if (!temEstoque) {
+            btn.disabled = true;
+            btn.style.opacity = '0.35';
+            btn.style.textDecoration = 'line-through';
+            btn.style.cursor = 'not-allowed';
+        }
         if (btn.dataset.tam === tamSel) btn.classList.add('sel');
         btn.addEventListener('click', () => {
+            if (btn.disabled) return;
             document.querySelectorAll('.tam-btn:not(.cor-btn)').forEach(b => b.classList.remove('sel'));
             btn.classList.add('sel');
             tamSel = btn.dataset.tam;
             document.getElementById('tam-sel-label').textContent = `— ${tamSel}`;
+            // Atualiza cores disponíveis para o tamanho selecionado
+            atualizarCoresDisponiveis(tamSel);
         });
     });
     document.getElementById('tam-sel-label').textContent = tamSel ? `— ${tamSel}` : '';
 }
 
-// Cores
+// Cores — desabilita sem estoque
 const cores = produto.cores ? produto.cores.split(',').map(c => c.trim()) : [];
-let corSel = cores[0] || '';
+let corSel = '';
+
+function atualizarCoresDisponiveis(tam) {
+    document.querySelectorAll('.cor-btn').forEach(btn => {
+        const c = btn.dataset.cor;
+        const sku = `${tam}_${c}`;
+        const qty = produto.estoque[sku] || 0;
+        if (qty === 0) {
+            btn.disabled = true;
+            btn.style.opacity = '0.35';
+            btn.style.textDecoration = 'line-through';
+            btn.style.cursor = 'not-allowed';
+            if (btn.classList.contains('sel')) {
+                btn.classList.remove('sel');
+                corSel = '';
+                document.getElementById('cor-sel-label').textContent = '';
+            }
+        } else {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            btn.style.textDecoration = 'none';
+            btn.style.cursor = 'pointer';
+        }
+    });
+    // Seleciona primeira cor disponível
+    if (!corSel) {
+        const primeira = document.querySelector('.cor-btn:not([disabled])');
+        if (primeira) {
+            primeira.classList.add('sel');
+            corSel = primeira.dataset.cor;
+            document.getElementById('cor-sel-label').textContent = `— ${corSel}`;
+        }
+    }
+}
+
 if (cores.length) {
     document.querySelectorAll('.cor-btn').forEach(btn => {
-        if (btn.dataset.cor === corSel) btn.classList.add('sel');
         btn.addEventListener('click', () => {
+            if (btn.disabled) return;
             document.querySelectorAll('.cor-btn').forEach(b => b.classList.remove('sel'));
             btn.classList.add('sel');
             corSel = btn.dataset.cor;
             document.getElementById('cor-sel-label').textContent = `— ${corSel}`;
         });
     });
-    document.getElementById('cor-sel-label').textContent = corSel ? `— ${corSel}` : '';
+    if (tamSel) atualizarCoresDisponiveis(tamSel);
 }
             // Adicionar ao carrinho
      document.getElementById('btn-add-cart').addEventListener('click', () => {
