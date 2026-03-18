@@ -4,7 +4,9 @@ const mysql = require('mysql2');
 const cors = require('cors');
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: 'https://morenaraiz.com'
+}));
 app.use(express.json());
 
 const db = mysql.createConnection({
@@ -16,10 +18,13 @@ const db = mysql.createConnection({
 });
 
 db.connect(err => {
-  if (err) { console.error('Erro ao conectar no banco:', err); return; }
-  console.log('Conectado ao MySQL!');
+  if (err) {
+    console.error('Erro ao conectar no banco:', err);
+    // não deixa o processo morrer silenciosamente
+  } else {
+    console.log('Conectado ao MySQL!');
+  }
 });
-
 // ── PRODUTOS ──
 
 app.get('/produtos', (req, res) => {
