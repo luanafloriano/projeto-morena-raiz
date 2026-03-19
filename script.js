@@ -112,13 +112,17 @@ class MorenaRaiz {
     if (tam && cor) {
         try {
             const res = await fetch(`${this.API}/produtos/${id}/estoque`).then(r => r.json());
-            const sku = `${tam}_${cor}`;
-            const disponivel = (res.estoque && res.estoque[sku]) ? res.estoque[sku] : 0;
-            const noCarrinho = this.carrinho.find(x => x._key === `${id}_${tam}_${cor}`);
-            const qtdNoCarrinho = noCarrinho ? noCarrinho.qtd : 0;
-            if (qtdNoCarrinho + 1 > disponivel) {
-                this.toast(`Só temos ${disponivel} unidade${disponivel !== 1 ? 's' : ''} disponível!`);
-                return;
+            const estoqueObj = res.estoque || {};
+            const estoqueConfigurado = Object.keys(estoqueObj).length > 0;
+            if (estoqueConfigurado) {
+                const sku = `${tam}_${cor}`;
+                const disponivel = estoqueObj[sku] || 0;
+                const noCarrinho = this.carrinho.find(x => x._key === `${id}_${tam}_${cor}`);
+                const qtdNoCarrinho = noCarrinho ? noCarrinho.qtd : 0;
+                if (qtdNoCarrinho + 1 > disponivel) {
+                    this.toast(`Só temos ${disponivel} unidade${disponivel !== 1 ? 's' : ''} disponível!`);
+                    return;
+                }
             }
         } catch(_) {}
     }
@@ -149,11 +153,15 @@ class MorenaRaiz {
         if (d > 0 && item.tam && item.cor) {
             try {
                 const res = await fetch(`${this.API}/produtos/${item.id}/estoque`).then(r => r.json());
-                const sku = `${item.tam}_${item.cor}`;
-                const disponivel = (res.estoque && res.estoque[sku]) ? res.estoque[sku] : 0;
-                if (item.qtd + d > disponivel) {
-                    this.toast(`Só temos ${disponivel} unidade${disponivel !== 1 ? 's' : ''} disponível!`);
-                    return;
+                const estoqueObj = res.estoque || {};
+                const estoqueConfigurado = Object.keys(estoqueObj).length > 0;
+                if (estoqueConfigurado) {
+                    const sku = `${item.tam}_${item.cor}`;
+                    const disponivel = estoqueObj[sku] || 0;
+                    if (item.qtd + d > disponivel) {
+                        this.toast(`Só temos ${disponivel} unidade${disponivel !== 1 ? 's' : ''} disponível!`);
+                        return;
+                    }
                 }
             } catch(_) {
                 // falha silenciosa — permite continuar
