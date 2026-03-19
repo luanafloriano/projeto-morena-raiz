@@ -4,7 +4,17 @@ const mysql = require('mysql2');
 const cors = require('cors');
 
 const app = express();
-app.use(cors({ origin: 'https://morenaraiz.com' }));
+
+const corsOptions = {
+  origin: ['https://morenaraiz.com', 'https://www.morenaraiz.com'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+app.use(express.json());
 
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
