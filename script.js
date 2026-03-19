@@ -133,6 +133,7 @@ class MorenaRaiz {
     else    this.carrinho.push({ ...p, qtd: 1, tam, cor, _key: key });
     this._saveCarrinho();
     this._updateDot();
+    this._renderCart();
     this.toast(`${p.nome} adicionado!`);
     this._frete = null;
 }
