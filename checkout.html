@@ -725,7 +725,7 @@ app._saveCarrinho();
 // Baixa estoque de cada item
 for (const item of carrinho) {
     if (item.id && item.tam && item.cor) {
-        const sku = `${item.tam}_${item.cor}`;
+        const sku = item.cor ? `${item.tam}_${item.cor}` : item.tam;
         try {
             await fetch(`${API}/produtos/${item.id}/estoque`, {
                 method: 'PATCH',

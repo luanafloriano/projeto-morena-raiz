@@ -228,7 +228,7 @@ if (tams.length) {
     for (const t of tams) {
         const temEstoque = cores.length
             ? cores.some(c => (produto.estoque[`${t}_${c}`] || 0) > 0)
-            : true;
+            : (produto.estoque[t] !== undefined ? (produto.estoque[t] || 0) > 0 : true);
         if (temEstoque) { tamSel = t; break; }
     }
 
@@ -236,7 +236,7 @@ if (tams.length) {
         const t = btn.dataset.tam;
         const temEstoque = cores.length
             ? cores.some(c => (produto.estoque[`${t}_${c}`] || 0) > 0)
-            : true;
+            : (produto.estoque[t] !== undefined ? (produto.estoque[t] || 0) > 0 : true);
         if (!temEstoque) {
             btn.disabled = true;
             btn.style.opacity = '0.35';

@@ -809,8 +809,8 @@
         const tams  = (document.getElementById(tamId).value||'').split(',').map(t=>t.trim()).filter(Boolean);
         const cores = (document.getElementById(coresId).value||'').split(',').map(c=>c.trim()).filter(Boolean);
 
-        if (!tams.length || !cores.length) {
-            grid.innerHTML = '<p class="sku-hint">Preencha os Tamanhos e Cores acima para definir o estoque.</p>';
+        if (!tams.length) {
+            grid.innerHTML = '<p class="sku-hint">Preencha os Tamanhos acima para definir o estoque.</p>';
             return;
         }
 
@@ -821,15 +821,22 @@
         }
 
         let html = '<table class="sku-table"><thead><tr><th>Tamanho</th>';
-        cores.forEach(c => { html += `<th>${c}</th>`; });
+        if (cores.length) cores.forEach(c => { html += `<th>${c}</th>`; });
+        else html += '<th>Qtd</th>';
         html += '</tr></thead><tbody>';
         tams.forEach(t => {
             html += `<tr><td style="font-weight:600">${t}</td>`;
-            cores.forEach(c => {
-                const sku = `${t}_${c}`;
+            if (cores.length) {
+                cores.forEach(c => {
+                    const sku = `${t}_${c}`;
+                    const val = anterior[sku] !== undefined ? anterior[sku] : (window._editEstoque?.[sku] ?? 0);
+                    html += `<td><input class="sku-input" type="number" min="0" data-sku="${sku}" value="${val}"></td>`;
+                });
+            } else {
+                const sku = t;
                 const val = anterior[sku] !== undefined ? anterior[sku] : (window._editEstoque?.[sku] ?? 0);
                 html += `<td><input class="sku-input" type="number" min="0" data-sku="${sku}" value="${val}"></td>`;
-            });
+            }
             html += '</tr>';
         });
         html += '</tbody></table>';

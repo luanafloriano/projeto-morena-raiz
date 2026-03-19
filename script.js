@@ -109,13 +109,13 @@ class MorenaRaiz {
     if (!p) return;
 
     // Verifica estoque antes de adicionar
-    if (tam && cor) {
+    if (tam) {
         try {
             const res = await fetch(`${this.API}/produtos/${id}/estoque`).then(r => r.json());
             const estoqueObj = res.estoque || {};
             const estoqueConfigurado = Object.keys(estoqueObj).length > 0;
             if (estoqueConfigurado) {
-                const sku = `${tam}_${cor}`;
+                const sku = cor ? `${tam}_${cor}` : tam;
                 const disponivel = estoqueObj[sku] || 0;
                 const noCarrinho = this.carrinho.find(x => x._key === `${id}_${tam}_${cor}`);
                 const qtdNoCarrinho = noCarrinho ? noCarrinho.qtd : 0;
@@ -151,13 +151,13 @@ class MorenaRaiz {
         if (!item) return;
 
         // Se está aumentando, verifica estoque no servidor
-        if (d > 0 && item.tam && item.cor) {
+        if (d > 0 && item.tam) {
             try {
                 const res = await fetch(`${this.API}/produtos/${item.id}/estoque`).then(r => r.json());
                 const estoqueObj = res.estoque || {};
                 const estoqueConfigurado = Object.keys(estoqueObj).length > 0;
                 if (estoqueConfigurado) {
-                    const sku = `${item.tam}_${item.cor}`;
+                    const sku = item.cor ? `${item.tam}_${item.cor}` : item.tam;
                     const disponivel = estoqueObj[sku] || 0;
                     if (item.qtd + d > disponivel) {
                         this.toast(`Só temos ${disponivel} unidade${disponivel !== 1 ? 's' : ''} disponível!`);
