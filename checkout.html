@@ -411,8 +411,10 @@
             return carrinho.reduce((s, x) => s + x.preco * x.qtd, 0);
         }
 
+        let checkoutFrete = null;
+
         function freteInfo() {
-            const f = app._frete;
+            const f = checkoutFrete;
             const sub = subTotal();
             if (!f || !f.tipo) return { label: 'A calcular', valor: null };
             if (f.tipo === 'retirada') return { label: 'Retirada na loja', valor: 0 };
@@ -491,6 +493,17 @@
                             <label>Complemento</label>
                             <input type="text" id="f-comp" placeholder="Apto, bloco...">
                         </div>
+                    </div>
+                </div>
+
+                <!-- ENTREGA -->
+                <div class="form-section">
+                    <p class="form-section-title"><i class="fas fa-truck"></i> Entrega</p>
+                    <div id="frete-opcoes-checkout">
+                        <p style="font-size:12px;color:var(--muted);margin-bottom:0.75rem">Preencha o CEP acima para ver as opções de envio.</p>
+                        <button onclick="selFreteRetiradaCheckout()" style="width:100%;background:none;border:1px dashed var(--border);padding:0.55rem;border-radius:3px;font-size:12px;color:var(--muted);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:0.5rem" onmouseover="this.style.borderColor='var(--dark)';this.style.color='var(--dark)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
+                            <i class="fas fa-store"></i> Retirar na loja — Tubarão/SC
+                        </button>
                     </div>
                 </div>
 
@@ -585,11 +598,11 @@
                         </div>
                         <div class="resumo-linha">
                             <span>Frete</span>
-                            <span>${f.valor === 0 ? '<span class="resumo-frete-gratis">Grátis</span>' : f.valor === null ? '—' : `R$ ${f.valor.toFixed(2).replace('.',',')}`}</span>
+                            <span id="resumo-frete-val">${f.valor === 0 ? '<span class="resumo-frete-gratis">Grátis</span>' : f.valor === null ? '—' : `R$ ${f.valor.toFixed(2).replace('.',',')}`}</span>
                         </div>
                         <div class="resumo-linha total">
                             <span>Total</span>
-                            <span>R$ ${tot.toFixed(2).replace('.',',')}</span>
+                            <span id="resumo-total-val">R$ ${tot.toFixed(2).replace('.',',')}</span>
                         </div>
                     </div>
                 </div>
@@ -626,8 +639,71 @@
                 if (!data.erro) {
                     document.getElementById('f-rua').value    = data.logradouro || '';
                     document.getElementById('f-cidade').value = `${data.localidade} - ${data.uf}`;
+                    mostrarOpcoesEntregaCheckout(data);
                 }
             } catch(_) {}
+        }
+
+        function mostrarOpcoesEntregaCheckout(viaCep) {
+            const qtdTotal   = carrinho.reduce((s,x) => s + x.qtd, 0);
+            const pesoGramas = qtdTotal * 300;
+            const { pac, sedex } = app._tabelaCorreios(viaCep.uf, pesoGramas);
+            const sub    = subTotal();
+            const gratis = sub >= app.FRETE_GRATIS;
+            const opcoes = document.getElementById('frete-opcoes-checkout');
+            if (!opcoes) return;
+            opcoes.innerHTML = `
+                <p style="font-size:11px;color:var(--muted);margin-bottom:0.5rem"><i class="fas fa-map-marker-alt"></i> ${viaCep.localidade} - ${viaCep.uf}</p>
+                <div style="display:flex;flex-direction:column;gap:0.4rem">
+                    <label style="display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0.75rem;border:1px solid var(--border);border-radius:4px;cursor:pointer" onclick="selFreteCheckout('pac',${gratis ? 0 : pac.valor},${pac.prazo})">
+                        <input type="radio" name="frete-checkout" style="accent-color:var(--dark)">
+                        <div style="flex:1">
+                            <p style="font-size:12px;font-weight:600">PAC</p>
+                            <p style="font-size:11px;color:${gratis ? '#15803d' : 'var(--muted)'}">${gratis ? '🎉 Grátis' : `R$ ${pac.valor.toFixed(2).replace('.',',')}`} · ${pac.prazo} dias úteis</p>
+                        </div>
+                    </label>
+                    <label style="display:flex;align-items:center;gap:0.75rem;padding:0.6rem 0.75rem;border:1px solid var(--border);border-radius:4px;cursor:pointer" onclick="selFreteCheckout('sedex',${sedex.valor},${sedex.prazo})">
+                        <input type="radio" name="frete-checkout" style="accent-color:var(--dark)">
+                        <div style="flex:1">
+                            <p style="font-size:12px;font-weight:600">SEDEX</p>
+                            <p style="font-size:11px;color:var(--muted)">R$ ${sedex.valor.toFixed(2).replace('.',',')} · ${sedex.prazo} dias úteis</p>
+                        </div>
+                    </label>
+                    <button onclick="selFreteRetiradaCheckout()" style="width:100%;background:none;border:1px dashed var(--border);padding:0.55rem;border-radius:3px;font-size:12px;color:var(--muted);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:0.5rem" onmouseover="this.style.borderColor='var(--dark)';this.style.color='var(--dark)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
+                        <i class="fas fa-store"></i> Retirar na loja — Tubarão/SC
+                    </button>
+                </div>`;
+        }
+
+        function selFreteCheckout(tipo, valor, prazo) {
+            checkoutFrete = { tipo, valor, prazo };
+            document.getElementById('f-cep').classList.remove('erro');
+            atualizarTotaisResumo();
+        }
+
+        function selFreteRetiradaCheckout() {
+            checkoutFrete = { tipo: 'retirada', valor: 0, prazo: null };
+            const opcoes = document.getElementById('frete-opcoes-checkout');
+            if (opcoes) opcoes.innerHTML = `
+                <div style="display:flex;align-items:center;gap:0.5rem;padding:0.6rem 0.75rem;background:var(--cream);border-radius:4px;border:2px solid var(--dark);margin-bottom:0.4rem">
+                    <i class="fas fa-store" style="color:var(--dark)"></i>
+                    <div>
+                        <p style="font-size:12px;font-weight:600">Retirada na loja</p>
+                        <p style="font-size:11px;color:var(--muted)">Tubarão - SC · Combinar horário pelo WhatsApp</p>
+                    </div>
+                </div>`;
+            document.getElementById('f-cep').classList.remove('erro');
+            atualizarTotaisResumo();
+        }
+
+        function atualizarTotaisResumo() {
+            const f   = freteInfo();
+            const sub = subTotal();
+            const tot = sub + (f.valor || 0);
+            const freteEl = document.getElementById('resumo-frete-val');
+            const totalEl = document.getElementById('resumo-total-val');
+            if (freteEl) freteEl.innerHTML = f.valor === 0 ? '<span class="resumo-frete-gratis">Grátis</span>' : f.valor === null ? '—' : `R$ ${f.valor.toFixed(2).replace('.',',')}`;
+            if (totalEl) totalEl.textContent = `R$ ${tot.toFixed(2).replace('.',',')}`;
         }
 
         // PAGAMENTO
@@ -665,10 +741,9 @@ togglePresente(false);
                 else el.classList.remove('erro');
             });
 
-            if (freteInfo().valor === null) {
-                const cepEl = document.getElementById('f-cep');
-                cepEl.classList.add('erro');
-                toast('Calcule o frete antes de finalizar!');
+            if (!checkoutFrete || !checkoutFrete.tipo) {
+                document.getElementById('frete-opcoes-checkout').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                toast('Selecione uma opção de entrega!');
                 return;
             }
 
