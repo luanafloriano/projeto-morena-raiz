@@ -394,6 +394,8 @@
 
         const CAT_LABEL = { lancamento:'Lançamento', vestido:'Vestido', blusa:'Blusa', calca:'Calça', saias:'Saia', shorts:'Shorts', fitness:'Fitness', acessorio:'Acessório', sale:'Sale' };
 
+        let checkoutFrete = null;
+
         // Carrinho vazio
         if (!carrinho.length) {
             page.innerHTML = `
@@ -411,8 +413,6 @@
         function subTotal() {
             return carrinho.reduce((s, x) => s + x.preco * x.qtd, 0);
         }
-
-        let checkoutFrete = null;
 
         function freteInfo() {
             const f = checkoutFrete;

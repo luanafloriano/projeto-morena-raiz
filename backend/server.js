@@ -15,21 +15,20 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
-const db = mysql.createConnection({
+const db = mysql.createPool({
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME
+  database: process.env.DB_NAME,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
 });
 
-db.connect(err => {
-  if (err) {
-    console.error('Erro ao conectar no banco:', err);
-    // não deixa o processo morrer silenciosamente
-  } else {
-    console.log('Conectado ao MySQL!');
-  }
+db.query('SELECT 1', err => {
+  if (err) console.error('Erro ao conectar no banco:', err);
+  else console.log('Conectado ao MySQL!');
 });
 // ── PRODUTOS ──
 
