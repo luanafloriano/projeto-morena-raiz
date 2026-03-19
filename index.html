@@ -164,6 +164,9 @@ fetch(`${API}/configuracoes`).then(r=>r.json()).then(cfg => {
     if (cfg.rodape_desc)    document.querySelector('.footer-brand p').textContent = cfg.rodape_desc;
     if (cfg.rodape_copy)    document.querySelector('.footer-bottom p').textContent = cfg.rodape_copy;
     if (cfg.banner_topo)    document.querySelector('.announcement p').textContent  = cfg.banner_topo;
+    if (cfg.whatsapp)       app.TELEFONE = cfg.whatsapp;
+    if (cfg.frete_gratis)   app.FRETE_GRATIS = parseFloat(cfg.frete_gratis);
+    app.applyTheme(cfg);
 }).catch(()=>{});
                 // Converte para o formato que o script.js usa
                 app.produtos = produtos.map(p => ({

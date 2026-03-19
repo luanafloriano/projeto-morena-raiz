@@ -398,6 +398,75 @@
                 <div class="card-body">
 
                     <div class="config-section">
+                        <p class="config-section-title">Visual</p>
+                        <div class="form-grid">
+                            <div class="field-grp full">
+                                <label>URL do Logotipo</label>
+                                <input type="url" id="cfg-logo" placeholder="https://... (deixe vazio para usar logo.png padrão)">
+                                <img id="cfg-logo-preview" style="margin-top:.5rem;max-height:60px;display:none">
+                            </div>
+                            <div class="field-grp">
+                                <label>Cor de destaque</label>
+                                <div style="display:flex;gap:.5rem;align-items:center">
+                                    <input type="color" id="cfg-cor-destaque" value="#C9A882" style="width:48px;height:36px;border:1px solid var(--border);border-radius:4px;cursor:pointer;padding:2px">
+                                    <input type="text" id="cfg-cor-destaque-hex" placeholder="#C9A882" style="flex:1" oninput="syncColor('cfg-cor-destaque','cfg-cor-destaque-hex')">
+                                </div>
+                                <small style="color:var(--muted);font-size:11px">Botões, ícones, destaques</small>
+                            </div>
+                            <div class="field-grp">
+                                <label>Cor principal</label>
+                                <div style="display:flex;gap:.5rem;align-items:center">
+                                    <input type="color" id="cfg-cor-principal" value="#111110" style="width:48px;height:36px;border:1px solid var(--border);border-radius:4px;cursor:pointer;padding:2px">
+                                    <input type="text" id="cfg-cor-principal-hex" placeholder="#111110" style="flex:1" oninput="syncColor('cfg-cor-principal','cfg-cor-principal-hex')">
+                                </div>
+                                <small style="color:var(--muted);font-size:11px">Header, botões, texto escuro</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="config-section">
+                        <p class="config-section-title">Tipografia</p>
+                        <div class="form-grid">
+                            <div class="field-grp">
+                                <label>Fonte do corpo</label>
+                                <select id="cfg-fonte-corpo">
+                                    <option value="DM Sans">DM Sans (padrão)</option>
+                                    <option value="Poppins">Poppins</option>
+                                    <option value="Nunito">Nunito</option>
+                                    <option value="Lato">Lato</option>
+                                    <option value="Inter">Inter</option>
+                                    <option value="Raleway">Raleway</option>
+                                </select>
+                            </div>
+                            <div class="field-grp">
+                                <label>Fonte dos títulos / logo</label>
+                                <select id="cfg-fonte-titulo">
+                                    <option value="Playfair Display">Playfair Display (padrão)</option>
+                                    <option value="Cormorant Garamond">Cormorant Garamond</option>
+                                    <option value="Lora">Lora</option>
+                                    <option value="Libre Baskerville">Libre Baskerville</option>
+                                    <option value="EB Garamond">EB Garamond</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="config-section">
+                        <p class="config-section-title">Segurança</p>
+                        <div class="form-grid">
+                            <div class="field-grp">
+                                <label>Nova senha do admin</label>
+                                <input type="password" id="cfg-senha-nova" placeholder="Nova senha">
+                            </div>
+                            <div class="field-grp">
+                                <label>Confirmar nova senha</label>
+                                <input type="password" id="cfg-senha-conf" placeholder="Repita a senha">
+                            </div>
+                        </div>
+                        <small style="color:var(--muted);font-size:11px">Deixe em branco para não alterar. Se nenhuma senha estiver cadastrada, o painel fica aberto.</small>
+                    </div>
+
+                    <div class="config-section">
                         <p class="config-section-title">Rodapé</p>
                         <div class="form-grid">
                             <div class="field-grp full">
@@ -518,8 +587,10 @@
 <div class="toast" id="toast"></div>
 
 <script>
-    const SENHA = 'MraiZ1981.';
+    let SENHA = 'MraiZ1981.';
     const API   = 'https://balanced-expression-production.up.railway.app';
+    // Tenta carregar senha do banco (sobrescreve o padrão se houver)
+    fetch(`${API}/configuracoes`).then(r=>r.json()).then(cfg=>{ if(cfg.admin_senha) SENHA=cfg.admin_senha; }).catch(()=>{});
     const CAT_LABEL = {lancamento:'Lançamento',vestido:'Vestido',blusa:'Blusa',calca:'Calça',saias:'Saia',shorts:'Shorts',fitness:'Fitness',acessorio:'Acessório',sale:'Sale'};
     const PAG_LABEL = {pix:'PIX',cartao:'Cartão',dinheiro:'Dinheiro',boleto:'Boleto'};
     const STATUS_BADGE = {pendente:'badge-pendente',confirmado:'badge-confirmado',enviado:'badge-enviado',entregue:'badge-entregue',cancelado:'badge-cancelado'};
@@ -965,22 +1036,62 @@
         document.getElementById('cfg-trocas').value       = cfg.link_trocas    || '';
         document.getElementById('cfg-pagamento').value    = cfg.link_pagamento || '';
         document.getElementById('cfg-entrega').value      = cfg.link_entrega   || '';
+        // Visual
+        const logoUrl = cfg.logo_url || '';
+        document.getElementById('cfg-logo').value = logoUrl;
+        if (logoUrl) { document.getElementById('cfg-logo-preview').src = logoUrl; document.getElementById('cfg-logo-preview').style.display='block'; }
+        const corD = cfg.cor_destaque || '#C9A882';
+        const corP = cfg.cor_principal || '#111110';
+        document.getElementById('cfg-cor-destaque').value     = corD;
+        document.getElementById('cfg-cor-destaque-hex').value = corD;
+        document.getElementById('cfg-cor-principal').value     = corP;
+        document.getElementById('cfg-cor-principal-hex').value = corP;
+        // Tipografia
+        document.getElementById('cfg-fonte-corpo').value   = cfg.fonte_corpo   || 'DM Sans';
+        document.getElementById('cfg-fonte-titulo').value  = cfg.fonte_titulo  || 'Playfair Display';
     } catch { toast('Erro ao carregar configurações.', true); }
 }
+
+    function syncColor(colorId, hexId) {
+        const hex = document.getElementById(hexId).value.trim();
+        if (/^#[0-9A-Fa-f]{6}$/.test(hex)) document.getElementById(colorId).value = hex;
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('cfg-cor-destaque')?.addEventListener('input', function(){ document.getElementById('cfg-cor-destaque-hex').value = this.value; });
+        document.getElementById('cfg-cor-principal')?.addEventListener('input', function(){ document.getElementById('cfg-cor-principal-hex').value = this.value; });
+        document.getElementById('cfg-logo')?.addEventListener('input', function(){
+            const p = document.getElementById('cfg-logo-preview');
+            if(this.value){ p.src=this.value; p.style.display='block'; } else { p.style.display='none'; }
+        });
+    });
 
     document.getElementById('btn-salvar-config').addEventListener('click', async () => {
         const btn = document.getElementById('btn-salvar-config');
         btn.disabled=true; btn.innerHTML='<i class="fas fa-circle-notch fa-spin"></i> Salvando...';
+        // Senha
+        const novaSenha = document.getElementById('cfg-senha-nova').value;
+        const confSenha = document.getElementById('cfg-senha-conf').value;
+        if (novaSenha && novaSenha !== confSenha) {
+            toast('As senhas não coincidem!', true);
+            btn.disabled=false; btn.innerHTML='<i class="fas fa-save"></i> Salvar Configurações';
+            return;
+        }
         const body = {
-    rodape_desc:  document.getElementById('cfg-desc').value.trim(),
-    rodape_copy:  document.getElementById('cfg-copy').value.trim(),
-    banner_topo:  document.getElementById('cfg-banner').value.trim(),
-    whatsapp:     document.getElementById('cfg-whatsapp').value.trim(),
-    frete_gratis: document.getElementById('cfg-frete-gratis').value.trim(),
-    link_trocas:    document.getElementById('cfg-trocas').value.trim(),
-    link_pagamento: document.getElementById('cfg-pagamento').value.trim(),
-    link_entrega:   document.getElementById('cfg-entrega').value.trim(),
+    rodape_desc:   document.getElementById('cfg-desc').value.trim(),
+    rodape_copy:   document.getElementById('cfg-copy').value.trim(),
+    banner_topo:   document.getElementById('cfg-banner').value.trim(),
+    whatsapp:      document.getElementById('cfg-whatsapp').value.trim(),
+    frete_gratis:  document.getElementById('cfg-frete-gratis').value.trim(),
+    link_trocas:   document.getElementById('cfg-trocas').value.trim(),
+    link_pagamento:document.getElementById('cfg-pagamento').value.trim(),
+    link_entrega:  document.getElementById('cfg-entrega').value.trim(),
+    logo_url:      document.getElementById('cfg-logo').value.trim(),
+    cor_destaque:  document.getElementById('cfg-cor-destaque').value,
+    cor_principal: document.getElementById('cfg-cor-principal').value,
+    fonte_corpo:   document.getElementById('cfg-fonte-corpo').value,
+    fonte_titulo:  document.getElementById('cfg-fonte-titulo').value,
 };
+        if (novaSenha) { body.admin_senha = novaSenha; SENHA = novaSenha; }
         try {
             await apiFetch('/configuracoes', {method:'POST',body:JSON.stringify(body)});
             toast('Configurações salvas!');

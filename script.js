@@ -494,6 +494,36 @@ class MorenaRaiz {
         window.location.href = 'checkout.html';
     }
 
+    // ─────────── TEMA ───────────
+    applyTheme(cfg) {
+        // Cores
+        const vars = [];
+        if (cfg.cor_destaque)  vars.push(`--tan: ${cfg.cor_destaque}`);
+        if (cfg.cor_principal) vars.push(`--dark: ${cfg.cor_principal}`);
+        if (vars.length) {
+            const s = document.createElement('style');
+            s.textContent = `:root { ${vars.join('; ')} }`;
+            document.head.appendChild(s);
+        }
+        // Logo
+        if (cfg.logo_url) {
+            document.querySelectorAll('img[src="logo.png"]').forEach(img => { img.src = cfg.logo_url; });
+        }
+        // Fontes
+        const corpo  = cfg.fonte_corpo  || 'DM Sans';
+        const titulo = cfg.fonte_titulo || 'Playfair Display';
+        const toLoad = [corpo, titulo].filter(f => f !== 'DM Sans' && f !== 'Playfair Display');
+        if (toLoad.length) {
+            const l = document.createElement('link');
+            l.rel  = 'stylesheet';
+            l.href = `https://fonts.googleapis.com/css2?${toLoad.map(f=>`family=${f.replace(/ /g,'+')}`).join('&')}&display=swap`;
+            document.head.appendChild(l);
+        }
+        const fs = document.createElement('style');
+        fs.textContent = `body { font-family: '${corpo}', sans-serif; } .logo-fallback, h1, h2, h3, .card-title, .prod-nome { font-family: '${titulo}', serif; }`;
+        document.head.appendChild(fs);
+    }
+
     // ─────────── TOAST ───────────
     toast(msg) {
         const el = document.getElementById('toast');

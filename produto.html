@@ -73,6 +73,7 @@
     <script>
         const API = 'https://balanced-expression-production.up.railway.app';
         const app = new MorenaRaiz();
+        fetch(`${API}/configuracoes`).then(r=>r.json()).then(cfg=>app.applyTheme(cfg)).catch(()=>{});
 
         const params = new URLSearchParams(window.location.search);
         const id     = parseInt(params.get('id'));
