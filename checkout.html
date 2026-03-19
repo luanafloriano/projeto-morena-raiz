@@ -677,13 +677,15 @@ togglePresente(false);
                 else el.classList.remove('erro');
             });
 
-            if (!pagSel) {
-                toast('Selecione uma forma de pagamento!');
+            if (freteInfo().valor === null) {
+                const cepEl = document.getElementById('f-cep');
+                cepEl.classList.add('erro');
+                toast('Calcule o frete antes de finalizar!');
                 return;
             }
 
-            if (freteInfo().valor === null) {
-                toast('Calcule o frete antes de finalizar!');
+            if (!pagSel) {
+                toast('Selecione uma forma de pagamento!');
                 return;
             }
 

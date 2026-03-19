@@ -246,7 +246,7 @@ class MorenaRaiz {
                 <div style="display:flex;gap:0.5rem">
                     <input id="cep-input" type="text" maxlength="9" placeholder="Digite seu CEP para ver o prazo"
                         style="flex:1;border:1px solid var(--border);border-radius:3px;padding:0.55rem 0.75rem;font-size:13px;font-family:inherit;background:var(--white)"
-                        oninput="app._maskCep(this)">
+                        oninput="app._maskCep(this);this.style.borderColor=''"
                     <button onclick="app.calcularFrete()"
                         style="background:var(--dark);color:#fff;border:none;padding:0.55rem 1rem;border-radius:3px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit">
                         Ver prazo
@@ -268,7 +268,7 @@ class MorenaRaiz {
                 <div style="display:flex;gap:0.5rem;align-items:center">
                     <input id="cep-input" type="text" maxlength="9" placeholder="Calcular frete — ex: 01310-100"
                         style="flex:1;border:1px solid var(--border);border-radius:3px;padding:0.55rem 0.75rem;font-size:13px;font-family:inherit;background:var(--white)"
-                        oninput="app._maskCep(this)">
+                        oninput="app._maskCep(this);this.style.borderColor=''"
                     <button onclick="app.calcularFrete()"
                         style="background:var(--dark);color:#fff;border:none;padding:0.55rem 1rem;border-radius:3px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit">
                         Calcular
@@ -492,6 +492,11 @@ class MorenaRaiz {
     _sendWhatsApp() {
         if (!this.carrinho.length) { this.toast('Adicione produtos primeiro!'); return; }
         if (!this._frete || !this._frete.tipo) {
+            const cepEl = document.getElementById('cep-input');
+            if (cepEl) {
+                cepEl.style.borderColor = '#ef4444';
+                cepEl.focus();
+            }
             this.toast('Selecione uma opção de entrega antes de continuar!');
             return;
         }
