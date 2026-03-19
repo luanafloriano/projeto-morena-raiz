@@ -490,6 +490,10 @@ class MorenaRaiz {
     // ─────────── WHATSAPP ───────────
     _sendWhatsApp() {
         if (!this.carrinho.length) { this.toast('Adicione produtos primeiro!'); return; }
+        if (!this._frete || !this._frete.tipo) {
+            this.toast('Selecione uma opção de entrega antes de continuar!');
+            return;
+        }
         window.location.href = 'checkout.html';
     }
 
