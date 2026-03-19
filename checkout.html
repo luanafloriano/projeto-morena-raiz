@@ -682,6 +682,11 @@ togglePresente(false);
                 return;
             }
 
+            if (freteInfo().valor === null) {
+                toast('Calcule o frete antes de finalizar!');
+                return;
+            }
+
             if (!valido) { toast('Preencha os campos obrigatórios!'); return; }
 
             const btn = document.getElementById('btn-confirmar');
