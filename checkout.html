@@ -510,10 +510,6 @@
                             <i class="fas fa-money-bill"></i>
                             <span>Dinheiro</span>
                         </button>
-                        <button class="pag-btn" data-pag="boleto" onclick="selPag(this)">
-                            <i class="fas fa-barcode"></i>
-                            <span>Boleto</span>
-                        </button>
                     </div>
                 </div>
 
@@ -543,14 +539,6 @@
                                 <textarea id="f-presente-msg" rows="3" placeholder="Escreva uma mensagem especial..."></textarea>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- OBSERVAÇÃO -->
-                <div class="form-section">
-                    <p class="form-section-title"><i class="fas fa-comment"></i> Observações</p>
-                    <div class="field">
-                        <textarea id="f-obs" rows="3" placeholder="Alguma observação sobre o pedido? Ex: tamanho específico, cor..."></textarea>
                     </div>
                 </div>
 
@@ -701,9 +689,7 @@ togglePresente(false);
 
             const cidade = document.getElementById('f-cidade').value;
             const comp   = document.getElementById('f-comp').value.trim();
-            const obs    = document.getElementById('f-obs').value.trim();
-
-            let obsCompleta = obs;
+            let obsCompleta = '';
             if (ehPresente) {
                 const para = document.getElementById('f-presente-para').value.trim();
                 const msg  = document.getElementById('f-presente-msg').value.trim();
