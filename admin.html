@@ -302,6 +302,18 @@
                 <input type="text" class="search-input" id="busca-admin" placeholder="Buscar produto...">
                 <button class="btn-solid" onclick="goPage('novo')"><i class="fas fa-plus"></i> Novo Produto</button>
             </div>
+            <div class="filtro-tabs">
+                <button class="filtro-tab active" onclick="filtrarCat('',this)">Todas</button>
+                <button class="filtro-tab" onclick="filtrarCat('lancamento',this)">Novidades</button>
+                <button class="filtro-tab" onclick="filtrarCat('vestido',this)">Vestidos</button>
+                <button class="filtro-tab" onclick="filtrarCat('blusa',this)">Blusas</button>
+                <button class="filtro-tab" onclick="filtrarCat('calca',this)">Calças</button>
+                <button class="filtro-tab" onclick="filtrarCat('saias',this)">Saias</button>
+                <button class="filtro-tab" onclick="filtrarCat('shorts',this)">Shorts</button>
+                <button class="filtro-tab" onclick="filtrarCat('fitness',this)">Fitness</button>
+                <button class="filtro-tab" onclick="filtrarCat('acessorio',this)">Acessórios</button>
+                <button class="filtro-tab" onclick="filtrarCat('sale',this)">Sale</button>
+            </div>
             <div class="card">
                 <div class="card-body" style="padding:0">
                     <table class="prod-table">
@@ -732,13 +744,24 @@
         return `<span class="sku-ok">${total} un.</span>`;
     }
 
+    let catFiltroAtual = '';
+
+    function filtrarCat(cat, btn) {
+        catFiltroAtual = cat;
+        document.querySelectorAll('#page-produtos .filtro-tab').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+        renderTabela(document.getElementById('busca-admin').value);
+    }
+
     async function renderTabela(filtro='') {
         const tbody = document.getElementById('tbody-produtos');
         tbody.innerHTML = `<tr><td colspan="7" class="loading"><i class="fas fa-circle-notch fa-spin"></i></td></tr>`;
         try { todosProdutos = await apiFetch('/produtos/todos'); }
         catch { tbody.innerHTML=`<tr><td colspan="7" class="table-empty">Erro ao carregar.</td></tr>`; return; }
 
-        const lista = filtro ? todosProdutos.filter(p=>p.nome.toLowerCase().includes(filtro.toLowerCase())) : todosProdutos;
+        let lista = todosProdutos;
+        if (filtro) lista = lista.filter(p=>p.nome.toLowerCase().includes(filtro.toLowerCase()));
+        if (catFiltroAtual) lista = lista.filter(p=>p.categoria === catFiltroAtual);
         if (!lista.length) { tbody.innerHTML=`<tr><td colspan="7" class="table-empty">Nenhum produto encontrado.</td></tr>`; return; }
 
         tbody.innerHTML = lista.map(p=>`
