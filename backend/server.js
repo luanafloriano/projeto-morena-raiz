@@ -64,10 +64,10 @@ app.get('/produtos/:id', (req, res) => {
 });
 
 app.post('/produtos', (req, res) => {
-  const { nome, preco, categoria, tamanhos, cores, material, descricao, imagem, destaque, ativo } = req.body;
+  const { nome, preco, categoria, tamanhos, cores, material, descricao, imagem, destaque, ativo, estoque } = req.body;
   db.query(
-    'INSERT INTO produtos (nome, preco, categoria, tamanhos, cores, material, descricao, imagem, destaque, ativo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-    [nome, preco, categoria, tamanhos, cores, material, descricao, imagem, destaque ?? 0, ativo ?? 1],
+    'INSERT INTO produtos (nome, preco, categoria, tamanhos, cores, material, descricao, imagem, destaque, ativo, estoque) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    [nome, preco, categoria, tamanhos, cores, material, descricao, imagem, destaque ?? 0, ativo ?? 1, estoque ? JSON.stringify(estoque) : null],
     (err, result) => {
       if (err) return res.status(500).json({ erro: err.message });
       res.json({ id: result.insertId, mensagem: 'Produto cadastrado!' });
