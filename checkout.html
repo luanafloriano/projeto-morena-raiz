@@ -388,7 +388,23 @@
     <script>
         const API      = 'https://balanced-expression-production.up.railway.app';
         const app      = new MorenaRaiz();
-        fetch(`${API}/configuracoes`).then(r=>r.json()).then(cfg=>app.applyTheme(cfg)).catch(()=>{});
+
+        // Templates de mensagem (carregados da API, com fallbacks)
+        const MSG_PEDIDO_PADRAO = '🛍️ *NOVO PEDIDO #{pedido}*\n\n👤 *{nome}*\n📱 {telefone}\n📍 {endereco}\n\n{itens}\n\n💰 Subtotal: R$ {subtotal}\n🚚 Frete: {frete}\n💳 Pagamento: {pagamento}\n━━━━━━━━━━━\n💵 *Total: R$ {total}*';
+        const MSG_CONF_PADRAO   = 'Olá, {nome}! 😊\nRecebemos seu pedido *#{pedido}* no valor de *R$ {total}*.\nEm breve entraremos em contato para confirmar os detalhes e finalizar o pagamento.\nObrigada pela preferência! 🌿';
+        let msgPedidoTpl = MSG_PEDIDO_PADRAO;
+        let msgConfTpl   = MSG_CONF_PADRAO;
+
+        function aplicarTemplate(tpl, vars) {
+            return tpl.replace(/\{(\w+)\}/g, (_, k) => vars[k] !== undefined ? vars[k] : `{${k}}`);
+        }
+
+        fetch(`${API}/configuracoes`).then(r=>r.json()).then(cfg => {
+            app.applyTheme(cfg);
+            if (cfg.msg_pedido_loja)          msgPedidoTpl = cfg.msg_pedido_loja;
+            if (cfg.msg_confirmacao_cliente)  msgConfTpl   = cfg.msg_confirmacao_cliente;
+        }).catch(()=>{});
+
         const carrinho = app.carrinho;
         const page     = document.getElementById('checkout-page');
 
@@ -816,14 +832,40 @@ for (const item of carrinho) {
                 document.getElementById('pedido-sucesso').style.display = 'block';
                 document.getElementById('sucesso-num').textContent = `#${String(res.id).padStart(4,'0')}`;
 
-               // Mensagem para o CLIENTE
-const wpMsgCliente = `🌿 Olá! Acabei de fazer um pedido no site!\n\n*Pedido #${String(res.id).padStart(4,'0')}*\n👤 ${nome}\n📱 ${tel}\n💳 Pagamento: ${pagSel}\n💰 Total: R$ ${tot.toFixed(2).replace('.',',')}\n\nAguardo a confirmação!`;
+               // Variáveis para substituição nos templates
+const pedidoNum = String(res.id).padStart(4,'0');
+const itensTxt  = carrinho.map(x => `▪ ${x.nome} x${x.qtd} — R$ ${(x.preco*x.qtd).toFixed(2).replace('.',',')}`).join('\n');
+const tplVars   = {
+    nome:      nome,
+    pedido:    pedidoNum,
+    telefone:  tel,
+    endereco:  body.cliente_endereco,
+    itens:     itensTxt,
+    subtotal:  sub.toFixed(2).replace('.',','),
+    frete:     f.label,
+    pagamento: pagSel,
+    total:     tot.toFixed(2).replace('.',','),
+};
 
-// Botão manda mensagem para o ADMIN com todos os detalhes
-const itensTxt = carrinho.map(x => `▪ ${x.nome} x${x.qtd} — R$ ${(x.preco*x.qtd).toFixed(2).replace('.',',')}`).join('\n');
-const wpAdmin = `🛍️ *NOVO PEDIDO #${String(res.id).padStart(4,'0')}*\n\n👤 *${nome}*\n📱 ${tel}\n📍 ${body.cliente_endereco}\n\n${itensTxt}\n\n💰 Subtotal: R$ ${sub.toFixed(2).replace('.',',')}\n🚚 Frete: ${f.label}\n💳 Pagamento: ${pagSel}\n━━━━━━━━━━━\n💵 *Total: R$ ${tot.toFixed(2).replace('.',',')}*${obsCompleta ? `\n\n📝 Obs: ${obsCompleta}` : ''}`;
+// Mensagem para o ADMIN (template configurável)
+const wpAdmin = aplicarTemplate(msgPedidoTpl, tplVars) + (obsCompleta ? `\n\n📝 Obs: ${obsCompleta}` : '');
 document.getElementById('btn-wp-confirmacao').href = `https://wa.me/55${app.TELEFONE}?text=${encodeURIComponent(wpAdmin)}`;
-document.getElementById('btn-wp-confirmacao').innerHTML = '<i class="fab fa-whatsapp"></i> Confirmar pedido pelo WhatsApp';
+document.getElementById('btn-wp-confirmacao').innerHTML = '<i class="fab fa-whatsapp"></i> Enviar pedido pelo WhatsApp';
+
+// Mensagem de confirmação para o cliente (exibida na tela de sucesso)
+const msgConf = aplicarTemplate(msgConfTpl, tplVars);
+const sucesso = document.getElementById('pedido-sucesso');
+if (!document.getElementById('sucesso-msg-conf')) {
+    const p = document.createElement('p');
+    p.id = 'sucesso-msg-conf';
+    p.style.cssText = 'font-size:13px;color:var(--muted);background:var(--off);border:1px solid var(--border);border-radius:4px;padding:.85rem 1rem;text-align:left;white-space:pre-line;margin-bottom:1rem;line-height:1.6';
+    p.textContent = msgConf;
+    sucesso.insertBefore(p, document.getElementById('btn-wp-confirmacao'));
+    const label = document.createElement('p');
+    label.style.cssText = 'font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem;text-align:left';
+    label.textContent = 'Mensagem que receberá:';
+    sucesso.insertBefore(label, p);
+}
 
 // Atualiza steps
                 document.querySelectorAll('.step').forEach((s, i) => {

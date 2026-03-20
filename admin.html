@@ -516,6 +516,22 @@
                         </div>
                     </div>
 
+                    <div class="config-section">
+                        <p class="config-section-title"><i class="fab fa-whatsapp" style="color:#25d366"></i> Mensagens WhatsApp</p>
+                        <div class="form-grid">
+                            <div class="field-grp full">
+                                <label>Mensagem do pedido (enviada pelo cliente à loja)</label>
+                                <textarea id="cfg-msg-pedido" rows="7" placeholder="🛍️ *NOVO PEDIDO #{pedido}*&#10;&#10;👤 *{nome}*&#10;📱 {telefone}&#10;📍 {endereco}&#10;&#10;{itens}&#10;&#10;💰 Subtotal: R$ {subtotal}&#10;🚚 Frete: {frete}&#10;💳 Pagamento: {pagamento}&#10;━━━━━━━━━━━&#10;💵 *Total: R$ {total}*"></textarea>
+                                <small>Variáveis disponíveis: <code>{nome}</code> <code>{pedido}</code> <code>{total}</code> <code>{subtotal}</code> <code>{itens}</code> <code>{pagamento}</code> <code>{frete}</code> <code>{endereco}</code> <code>{telefone}</code></small>
+                            </div>
+                            <div class="field-grp full">
+                                <label>Mensagem de confirmação (enviada pela loja ao cliente)</label>
+                                <textarea id="cfg-msg-confirmacao" rows="5" placeholder="Olá, {nome}! 😊&#10;Recebemos seu pedido *#{pedido}* no valor de *R$ {total}*.&#10;Em breve entraremos em contato para confirmar os detalhes e finalizar o pagamento.&#10;Obrigada pela preferência! 🌿"></textarea>
+                                <small>Variáveis disponíveis: <code>{nome}</code> <code>{pedido}</code> <code>{total}</code> <code>{pagamento}</code> · O botão "Confirmar" em cada pedido já abre o WhatsApp do cliente com essa mensagem pronta.</small>
+                            </div>
+                        </div>
+                    </div>
+
                     <div style="margin-top:1.5rem;display:flex;gap:.75rem">
                         <button class="btn-solid" id="btn-salvar-config"><i class="fas fa-save"></i> Salvar Configurações</button>
                     </div>
@@ -715,6 +731,13 @@
     let todosPedidos = [];
     let filtroAtual = 'todos';
 
+    const MSG_CONFIRMACAO_PADRAO = 'Olá, {nome}! 😊\nRecebemos seu pedido *#{pedido}* no valor de *R$ {total}*.\nEm breve entraremos em contato para confirmar os detalhes e finalizar o pagamento.\nObrigada pela preferência! 🌿';
+    let confMsgCliente = MSG_CONFIRMACAO_PADRAO;
+
+    function aplicarTemplate(template, vars) {
+        return template.replace(/\{(\w+)\}/g, (_, k) => vars[k] !== undefined ? vars[k] : `{${k}}`);
+    }
+
     async function renderPedidos() {
         document.getElementById('lista-pedidos').innerHTML = '<div class="loading"><i class="fas fa-circle-notch fa-spin"></i> Carregando...</div>';
         try {
@@ -774,8 +797,17 @@
                             <option value="cancelado"  ${p.status==='cancelado' ?'selected':''}>Cancelado</option>
                         </select>
                         <button class="btn-status" onclick="atualizarStatus(${p.id})"><i class="fas fa-check"></i> Salvar Status</button>
-                        ${tel?`<a href="https://wa.me/55${tel}" target="_blank" class="btn-outline" style="font-size:11px;padding:.45rem .9rem">
-                            <i class="fab fa-whatsapp" style="color:#25d366"></i> WhatsApp</a>`:''}
+                        ${tel?(()=>{
+                            const msgConf = aplicarTemplate(confMsgCliente, {
+                                nome:     p.cliente_nome,
+                                pedido:   String(p.id).padStart(4,'0'),
+                                total:    parseFloat(p.total).toFixed(2).replace('.',','),
+                                pagamento: PAG_LABEL[p.pagamento]||p.pagamento||'—',
+                            });
+                            const wpUrl = `https://wa.me/55${tel}?text=${encodeURIComponent(msgConf)}`;
+                            return `<a href="${wpUrl}" target="_blank" class="btn-outline" style="font-size:11px;padding:.45rem .9rem;background:#25d366;border-color:#25d366;color:#fff">
+                                <i class="fab fa-whatsapp"></i> Confirmar cliente</a>`;
+                        })():''}
                     </div>
                 </div>
             </div>`;
@@ -1049,6 +1081,10 @@
         // Tipografia
         document.getElementById('cfg-fonte-corpo').value   = cfg.fonte_corpo   || 'DM Sans';
         document.getElementById('cfg-fonte-titulo').value  = cfg.fonte_titulo  || 'Playfair Display';
+        // WhatsApp
+        document.getElementById('cfg-msg-pedido').value      = cfg.msg_pedido_loja     || '';
+        document.getElementById('cfg-msg-confirmacao').value = cfg.msg_confirmacao_cliente || '';
+        confMsgCliente = cfg.msg_confirmacao_cliente || MSG_CONFIRMACAO_PADRAO;
     } catch { toast('Erro ao carregar configurações.', true); }
 }
 
@@ -1090,8 +1126,11 @@
     cor_principal: document.getElementById('cfg-cor-principal').value,
     fonte_corpo:   document.getElementById('cfg-fonte-corpo').value,
     fonte_titulo:  document.getElementById('cfg-fonte-titulo').value,
+    msg_pedido_loja:          document.getElementById('cfg-msg-pedido').value.trim(),
+    msg_confirmacao_cliente:  document.getElementById('cfg-msg-confirmacao').value.trim(),
 };
         if (novaSenha) { body.admin_senha = novaSenha; SENHA = novaSenha; }
+        confMsgCliente = body.msg_confirmacao_cliente || MSG_CONFIRMACAO_PADRAO;
         try {
             await apiFetch('/configuracoes', {method:'POST',body:JSON.stringify(body)});
             toast('Configurações salvas!');
