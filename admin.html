@@ -362,8 +362,11 @@
                             <div class="field-grp full"><label>Descrição</label><textarea id="f-desc" rows="3" placeholder="Descreva a peça..."></textarea></div>
                             <div class="field-grp full">
                                 <label>URL da Imagem</label>
-                                <input type="url" id="f-img" placeholder="https://...">
-                                <small>Use <a href="https://imgbb.com" target="_blank">ImgBB</a> para hospedar imagens gratuitamente</small>
+                                <div style="display:flex;gap:.5rem;align-items:center">
+                                    <input type="url" id="f-img" placeholder="https://..." style="flex:1">
+                                    <button type="button" class="btn-outline" onclick="escolherImagem('f-img')" style="white-space:nowrap;flex-shrink:0"><i class="fas fa-upload"></i> Do PC</button>
+                                </div>
+                                <small>Cole uma URL ou envie do seu computador</small>
                             </div>
                             <div class="field-grp full">
                                 <label>Estoque por SKU (Tamanho + Cor)</label>
@@ -549,8 +552,11 @@
                     <div class="form-grid">
                         <div class="field-grp full">
                             <label>URL da Imagem *</label>
-                            <input type="url" id="sl-img" placeholder="https://...">
-                            <small>Recomendado: 1400×500px. Use <a href="https://imgbb.com" target="_blank">ImgBB</a> para hospedar imagens gratuitamente.</small>
+                            <div style="display:flex;gap:.5rem;align-items:center">
+                                <input type="url" id="sl-img" placeholder="https://..." style="flex:1">
+                                <button type="button" class="btn-outline" onclick="escolherImagem('sl-img','sl-preview')" style="white-space:nowrap;flex-shrink:0"><i class="fas fa-upload"></i> Do PC</button>
+                            </div>
+                            <small>Recomendado: 1400×500px. Cole uma URL ou envie do seu computador.</small>
                         </div>
                         <div class="field-grp full" style="margin-top:.25rem" id="sl-preview-wrap" style="display:none">
                             <img id="sl-preview" style="max-height:120px;border-radius:2px;display:none;border:1px solid var(--border)">
@@ -622,7 +628,13 @@
                 <div class="field-grp"><label>Cores</label><input type="text" id="e-cores" oninput="renderSkuGrid('e-sku-grid','e-tam','e-cores', true)"></div>
                 <div class="field-grp"><label>Material</label><input type="text" id="e-material"></div>
                 <div class="field-grp full"><label>Descrição</label><textarea id="e-desc" rows="3"></textarea></div>
-                <div class="field-grp full"><label>URL da Imagem</label><input type="url" id="e-img"></div>
+                <div class="field-grp full">
+                    <label>URL da Imagem</label>
+                    <div style="display:flex;gap:.5rem;align-items:center">
+                        <input type="url" id="e-img" style="flex:1">
+                        <button type="button" class="btn-outline" onclick="escolherImagem('e-img')" style="white-space:nowrap;flex-shrink:0"><i class="fas fa-upload"></i> Do PC</button>
+                    </div>
+                </div>
                 <div class="field-grp full">
                     <label>Estoque por SKU (Tamanho + Cor)</label>
                     <div id="e-sku-grid"><p class="sku-hint">Preencha os Tamanhos e Cores para definir o estoque.</p></div>
@@ -1196,6 +1208,35 @@
         const el = document.getElementById('toast');
         el.textContent=msg; el.className='toast show'+(erro?' erro':'');
         clearTimeout(_t); _t=setTimeout(()=>el.classList.remove('show'),3000);
+    }
+
+    // ── UPLOAD DE IMAGEM DO PC ──
+    function escolherImagem(inputId, previewId) {
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'image/jpeg,image/png,image/webp,image/gif';
+        fileInput.style.display = 'none';
+        document.body.appendChild(fileInput);
+        fileInput.click();
+        fileInput.addEventListener('change', async () => {
+            const file = fileInput.files[0];
+            document.body.removeChild(fileInput);
+            if (!file) return;
+            const formData = new FormData();
+            formData.append('imagem', file);
+            toast('Enviando imagem...');
+            try {
+                const res = await fetch(`${API}/upload`, { method: 'POST', body: formData });
+                if (!res.ok) throw new Error();
+                const { url } = await res.json();
+                document.getElementById(inputId).value = url;
+                if (previewId) {
+                    const prev = document.getElementById(previewId);
+                    if (prev) { prev.src = url; prev.style.display = 'block'; }
+                }
+                toast('Imagem enviada!');
+            } catch { toast('Erro ao enviar imagem.', true); }
+        });
     }
 
     // ── SLIDES ──

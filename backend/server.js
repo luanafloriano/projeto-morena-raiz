@@ -2,6 +2,9 @@ require('dotenv').config();
 const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 
 const app = express();
 
@@ -14,6 +17,36 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json());
+
+// ── UPLOAD DE IMAGENS ──
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir);
+
+app.use('/uploads', express.static(uploadsDir));
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadsDir),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    cb(null, `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`);
+  }
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowed = /jpeg|jpg|png|webp|gif/;
+    const ok = allowed.test(path.extname(file.originalname).toLowerCase()) && allowed.test(file.mimetype);
+    ok ? cb(null, true) : cb(new Error('Apenas imagens são permitidas'));
+  }
+});
+
+app.post('/upload', upload.single('imagem'), (req, res) => {
+  if (!req.file) return res.status(400).json({ erro: 'Nenhum arquivo enviado' });
+  const url = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+  res.json({ url });
+});
 
 const db = mysql.createPool({
   host: process.env.DB_HOST,
