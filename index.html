@@ -67,6 +67,14 @@
         </div>
     </div>
 
+    <!-- SLIDESHOW -->
+    <div class="slideshow" id="slideshow" style="display:none">
+        <div class="slideshow-track" id="slideshow-track"></div>
+        <button class="slide-btn slide-prev" id="slide-prev" aria-label="Anterior"><i class="fas fa-chevron-left"></i></button>
+        <button class="slide-btn slide-next" id="slide-next" aria-label="Próximo"><i class="fas fa-chevron-right"></i></button>
+        <div class="slide-dots" id="slide-dots"></div>
+    </div>
+
     <!-- FILTROS -->
     <div class="filters-bar" id="filters-bar">
         <div class="filters-inner">
@@ -241,6 +249,53 @@ fetch(`${API}/configuracoes`).then(r=>r.json()).then(cfg => {
                     </div>
                 </a>`).join('');
         });
+
+        // SLIDESHOW
+        (async function iniciarSlideshow() {
+            try {
+                const slides = await fetch(`${API}/slides`).then(r => r.json());
+                if (!Array.isArray(slides) || slides.length === 0) return;
+
+                const wrap = document.getElementById('slideshow');
+                const track = document.getElementById('slideshow-track');
+                const dotsEl = document.getElementById('slide-dots');
+                let atual = 0, timer;
+
+                track.innerHTML = slides.map(s => {
+                    const img = `<img src="${s.imagem_url}" alt="${s.titulo || ''}" loading="lazy">`;
+                    const titulo = s.titulo ? `<span class="slide-titulo">${s.titulo}</span>` : '';
+                    return s.link
+                        ? `<div class="slide"><a class="slide-link" href="${s.link}">${img}${titulo}</a></div>`
+                        : `<div class="slide">${img}${titulo}</div>`;
+                }).join('');
+
+                dotsEl.innerHTML = slides.map((_, i) =>
+                    `<button class="slide-dot${i === 0 ? ' active' : ''}" data-i="${i}" aria-label="Slide ${i+1}"></button>`
+                ).join('');
+
+                function irPara(i) {
+                    atual = (i + slides.length) % slides.length;
+                    track.style.transform = `translateX(-${atual * 100}%)`;
+                    dotsEl.querySelectorAll('.slide-dot').forEach((d, idx) =>
+                        d.classList.toggle('active', idx === atual));
+                }
+
+                function autoplay() {
+                    clearTimeout(timer);
+                    timer = setTimeout(() => { irPara(atual + 1); autoplay(); }, 5000);
+                }
+
+                document.getElementById('slide-prev').addEventListener('click', () => { irPara(atual - 1); autoplay(); });
+                document.getElementById('slide-next').addEventListener('click', () => { irPara(atual + 1); autoplay(); });
+                dotsEl.addEventListener('click', e => {
+                    const dot = e.target.closest('.slide-dot');
+                    if (dot) { irPara(parseInt(dot.dataset.i)); autoplay(); }
+                });
+
+                wrap.style.display = 'block';
+                autoplay();
+            } catch(_) {}
+        })();
 
         // INICIA
         carregarProdutos();

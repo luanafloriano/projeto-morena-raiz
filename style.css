@@ -997,3 +997,95 @@ button { cursor: pointer; }
     .produto-page { padding: 1.5rem 1rem; }
     .mais-pecas   { padding: 2rem 1rem; }
 }
+
+/* ── SLIDESHOW ── */
+.slideshow {
+    position: relative;
+    overflow: hidden;
+    background: var(--light);
+    height: 440px;
+    user-select: none;
+}
+.slideshow-track {
+    display: flex;
+    height: 100%;
+    transition: transform .5s cubic-bezier(.4,0,.2,1);
+}
+.slide {
+    flex: 0 0 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+.slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.slide-titulo {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(17,17,16,.52);
+    color: #fff;
+    padding: .55rem 1.75rem;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-weight: 400;
+    letter-spacing: 1.5px;
+    white-space: nowrap;
+    border-radius: 2px;
+    pointer-events: none;
+}
+.slide-link { display: block; height: 100%; }
+.slide-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255,255,255,.72);
+    border: none;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .8rem;
+    color: var(--dark);
+    transition: background .2s, opacity .2s;
+    z-index: 2;
+    opacity: .8;
+}
+.slide-btn:hover { background: #fff; opacity: 1; }
+.slide-prev { left: 1rem; }
+.slide-next { right: 1rem; }
+.slide-dots {
+    position: absolute;
+    bottom: .85rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: .45rem;
+    z-index: 2;
+}
+.slide-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.45);
+    border: none;
+    cursor: pointer;
+    transition: background .25s, transform .25s;
+    padding: 0;
+}
+.slide-dot.active {
+    background: #fff;
+    transform: scale(1.25);
+}
+@media (max-width: 768px) {
+    .slideshow { height: 220px; }
+    .slide-titulo { font-size: .9rem; padding: .4rem 1rem; bottom: 1.25rem; }
+    .slide-btn { width: 30px; height: 30px; font-size: .7rem; }
+}

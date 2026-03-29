@@ -239,6 +239,7 @@
             <div class="nav-item" data-page="pedidos"><i class="fas fa-shopping-bag"></i><span>Pedidos</span><span class="nav-badge" id="badge-pendentes" style="display:none">0</span></div>
             <div class="nav-item" data-page="produtos"><i class="fas fa-boxes"></i><span>Produtos</span></div>
             <div class="nav-item" data-page="novo"><i class="fas fa-plus-circle"></i><span>Novo Produto</span></div>
+            <div class="nav-item" data-page="slides"><i class="fas fa-images"></i><span>Slides</span></div>
             <div class="nav-item" data-page="configuracoes"><i class="fas fa-cog"></i><span>Configurações</span></div>
         </nav>
         <div class="sidebar-footer">
@@ -540,6 +541,55 @@
             </div>
         </div>
 
+        <!-- SLIDES -->
+        <div class="page" id="page-slides">
+            <div class="card" style="margin-bottom:1.5rem;max-width:700px">
+                <div class="card-header"><p class="card-title" id="slides-form-title">Adicionar Slide</p></div>
+                <div class="card-body">
+                    <div class="form-grid">
+                        <div class="field-grp full">
+                            <label>URL da Imagem *</label>
+                            <input type="url" id="sl-img" placeholder="https://...">
+                            <small>Recomendado: 1400×500px. Use <a href="https://imgbb.com" target="_blank">ImgBB</a> para hospedar imagens gratuitamente.</small>
+                        </div>
+                        <div class="field-grp full" style="margin-top:.25rem" id="sl-preview-wrap" style="display:none">
+                            <img id="sl-preview" style="max-height:120px;border-radius:2px;display:none;border:1px solid var(--border)">
+                        </div>
+                        <div class="field-grp">
+                            <label>Título (opcional)</label>
+                            <input type="text" id="sl-titulo" placeholder="Ex: Nova Coleção Verão">
+                        </div>
+                        <div class="field-grp">
+                            <label>Link ao clicar (opcional)</label>
+                            <input type="url" id="sl-link" placeholder="https://...">
+                        </div>
+                        <div class="field-grp">
+                            <label>Ordem</label>
+                            <input type="number" id="sl-ordem" value="0" min="0">
+                            <small>Menor número aparece primeiro</small>
+                        </div>
+                        <div class="field-grp">
+                            <label>Ativo?</label>
+                            <div class="toggle-row" style="margin-top:.4rem">
+                                <label class="toggle"><input type="checkbox" id="sl-ativo" checked><span class="toggle-slider"></span></label>
+                                <span style="font-size:13px;color:var(--muted)">Visível na loja</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top:1.25rem;display:flex;gap:.75rem">
+                        <button class="btn-solid" id="btn-salvar-slide" onclick="salvarSlide()"><i class="fas fa-plus"></i> Adicionar Slide</button>
+                        <button class="btn-outline" id="btn-cancelar-slide" style="display:none" onclick="cancelarEdicaoSlide()">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><p class="card-title">Slides Cadastrados</p></div>
+                <div class="card-body" style="padding:0">
+                    <div id="lista-slides"><div class="loading"><i class="fas fa-circle-notch fa-spin"></i> Carregando...</div></div>
+                </div>
+            </div>
+        </div>
+
     </main>
 </div>
 
@@ -659,6 +709,7 @@
         pedidos:['Pedidos','Gerencie os pedidos dos clientes'],
         produtos:['Produtos','Gerencie seu catálogo'],
         novo:['Novo Produto','Adicione uma nova peça'],
+        slides:['Slides','Gerencie o carrossel da página inicial'],
         configuracoes:['Configurações','Personalize a loja']
     };
 
@@ -680,6 +731,7 @@
             document.getElementById('f-ativo').checked = true;
             document.getElementById('f-sku-grid').innerHTML = '<p class="sku-hint">Preencha os Tamanhos e Cores acima para definir o estoque.</p>';
         }
+        if (p==='slides') carregarSlides();
         if (p==='configuracoes') carregarConfigs();
     }
 
@@ -1144,6 +1196,139 @@
         const el = document.getElementById('toast');
         el.textContent=msg; el.className='toast show'+(erro?' erro':'');
         clearTimeout(_t); _t=setTimeout(()=>el.classList.remove('show'),3000);
+    }
+
+    // ── SLIDES ──
+    let todosSlides = [];
+    let editandoSlideId = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('sl-img')?.addEventListener('input', function() {
+            const prev = document.getElementById('sl-preview');
+            if (this.value) { prev.src = this.value; prev.style.display = 'block'; }
+            else prev.style.display = 'none';
+        });
+    });
+
+    async function carregarSlides() {
+        document.getElementById('lista-slides').innerHTML = '<div class="loading"><i class="fas fa-circle-notch fa-spin"></i> Carregando...</div>';
+        try {
+            todosSlides = await apiFetch('/slides/todos');
+            renderListaSlides();
+        } catch {
+            document.getElementById('lista-slides').innerHTML = '<div class="loading">Erro ao carregar slides.</div>';
+        }
+    }
+
+    function renderListaSlides() {
+        const el = document.getElementById('lista-slides');
+        if (!todosSlides.length) {
+            el.innerHTML = '<div class="table-empty">Nenhum slide cadastrado. Adicione o primeiro acima.</div>';
+            return;
+        }
+        el.innerHTML = `<table class="prod-table">
+            <thead><tr>
+                <th style="width:120px">Imagem</th>
+                <th>Título</th>
+                <th style="width:70px">Ordem</th>
+                <th style="width:80px">Ativo</th>
+                <th style="width:110px"></th>
+            </tr></thead>
+            <tbody>${todosSlides.map(s => `
+                <tr>
+                    <td><img class="prod-thumb" style="width:96px;height:54px;object-fit:cover" src="${s.imagem_url}" onerror="this.style.background='var(--cream)'"></td>
+                    <td style="font-size:13px">${s.titulo || '<span style="color:var(--muted)">—</span>'}</td>
+                    <td style="text-align:center">${s.ordem}</td>
+                    <td>
+                        <label class="toggle" title="${s.ativo ? 'Ativo' : 'Inativo'}">
+                            <input type="checkbox" ${s.ativo ? 'checked' : ''} onchange="toggleSlide(${s.id}, this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </td>
+                    <td>
+                        <button class="btn-edit-row" onclick="abrirEditarSlide(${s.id})"><i class="fas fa-pen"></i></button>
+                        <button class="btn-del-row" onclick="deletarSlide(${s.id})"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>`).join('')}
+            </tbody>
+        </table>`;
+    }
+
+    async function salvarSlide() {
+        const imagem_url = document.getElementById('sl-img').value.trim();
+        if (!imagem_url) { toast('Informe a URL da imagem!', true); return; }
+        const btn = document.getElementById('btn-salvar-slide');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Salvando...';
+        const body = {
+            imagem_url,
+            titulo: document.getElementById('sl-titulo').value.trim() || null,
+            link:   document.getElementById('sl-link').value.trim() || null,
+            ordem:  parseInt(document.getElementById('sl-ordem').value) || 0,
+            ativo:  document.getElementById('sl-ativo').checked ? 1 : 0,
+        };
+        try {
+            if (editandoSlideId) {
+                await apiFetch(`/slides/${editandoSlideId}`, {method:'PUT', body:JSON.stringify(body)});
+                toast('Slide atualizado!');
+            } else {
+                await apiFetch('/slides', {method:'POST', body:JSON.stringify(body)});
+                toast('Slide adicionado!');
+            }
+            cancelarEdicaoSlide();
+            carregarSlides();
+        } catch { toast('Erro ao salvar slide.', true); }
+        finally {
+            btn.disabled = false;
+            btn.innerHTML = editandoSlideId ? '<i class="fas fa-check"></i> Salvar Alterações' : '<i class="fas fa-plus"></i> Adicionar Slide';
+        }
+    }
+
+    function abrirEditarSlide(id) {
+        const s = todosSlides.find(x => x.id === id);
+        if (!s) return;
+        editandoSlideId = id;
+        document.getElementById('sl-img').value    = s.imagem_url || '';
+        document.getElementById('sl-titulo').value = s.titulo || '';
+        document.getElementById('sl-link').value   = s.link || '';
+        document.getElementById('sl-ordem').value  = s.ordem ?? 0;
+        document.getElementById('sl-ativo').checked = !!s.ativo;
+        const prev = document.getElementById('sl-preview');
+        if (s.imagem_url) { prev.src = s.imagem_url; prev.style.display = 'block'; }
+        document.getElementById('slides-form-title').textContent = 'Editar Slide';
+        document.getElementById('btn-salvar-slide').innerHTML = '<i class="fas fa-check"></i> Salvar Alterações';
+        document.getElementById('btn-cancelar-slide').style.display = 'inline-flex';
+        document.querySelector('#page-slides .card').scrollIntoView({behavior:'smooth'});
+    }
+
+    function cancelarEdicaoSlide() {
+        editandoSlideId = null;
+        document.getElementById('sl-img').value    = '';
+        document.getElementById('sl-titulo').value = '';
+        document.getElementById('sl-link').value   = '';
+        document.getElementById('sl-ordem').value  = '0';
+        document.getElementById('sl-ativo').checked = true;
+        document.getElementById('sl-preview').style.display = 'none';
+        document.getElementById('slides-form-title').textContent = 'Adicionar Slide';
+        document.getElementById('btn-salvar-slide').innerHTML = '<i class="fas fa-plus"></i> Adicionar Slide';
+        document.getElementById('btn-cancelar-slide').style.display = 'none';
+    }
+
+    async function toggleSlide(id, ativo) {
+        const s = todosSlides.find(x => x.id === id);
+        if (!s) return;
+        try {
+            await apiFetch(`/slides/${id}`, {method:'PUT', body:JSON.stringify({...s, ativo: ativo ? 1 : 0})});
+        } catch { toast('Erro ao atualizar.', true); carregarSlides(); }
+    }
+
+    async function deletarSlide(id) {
+        if (!confirm('Excluir este slide?')) return;
+        try {
+            await apiFetch(`/slides/${id}`, {method:'DELETE'});
+            toast('Slide excluído.');
+            carregarSlides();
+        } catch { toast('Erro ao excluir.', true); }
     }
 </script>
 </body>

@@ -165,6 +165,53 @@ app.patch('/pedidos/:id/status', (req, res) => {
   });
 });
 
+// ── SLIDES ──
+
+app.get('/slides', (req, res) => {
+  db.query('SELECT * FROM slides WHERE ativo = 1 ORDER BY ordem ASC, id ASC', (err, results) => {
+    if (err) return res.status(500).json({ erro: err.message });
+    res.json(results);
+  });
+});
+
+app.get('/slides/todos', (req, res) => {
+  db.query('SELECT * FROM slides ORDER BY ordem ASC, id ASC', (err, results) => {
+    if (err) return res.status(500).json({ erro: err.message });
+    res.json(results);
+  });
+});
+
+app.post('/slides', (req, res) => {
+  const { imagem_url, titulo, link, ordem, ativo } = req.body;
+  db.query(
+    'INSERT INTO slides (imagem_url, titulo, link, ordem, ativo) VALUES (?, ?, ?, ?, ?)',
+    [imagem_url, titulo || null, link || null, ordem || 0, ativo ?? 1],
+    (err, result) => {
+      if (err) return res.status(500).json({ erro: err.message });
+      res.json({ id: result.insertId, mensagem: 'Slide criado!' });
+    }
+  );
+});
+
+app.put('/slides/:id', (req, res) => {
+  const { imagem_url, titulo, link, ordem, ativo } = req.body;
+  db.query(
+    'UPDATE slides SET imagem_url=?, titulo=?, link=?, ordem=?, ativo=? WHERE id=?',
+    [imagem_url, titulo || null, link || null, ordem || 0, ativo, req.params.id],
+    (err) => {
+      if (err) return res.status(500).json({ erro: err.message });
+      res.json({ mensagem: 'Slide atualizado!' });
+    }
+  );
+});
+
+app.delete('/slides/:id', (req, res) => {
+  db.query('DELETE FROM slides WHERE id = ?', [req.params.id], (err) => {
+    if (err) return res.status(500).json({ erro: err.message });
+    res.json({ mensagem: 'Slide deletado!' });
+  });
+});
+
 // ── CONFIGURAÇÕES ──
 
 app.get('/configuracoes', (req, res) => {
